@@ -39,7 +39,8 @@ func NewWorkerFromPod(pod v1.Pod) *brigade.Worker {
 		ProjectID: l["project"],
 		Status:    brigade.JobStatus(pod.Status.Phase),
 	}
-
+	t := time.Now()
+        fmt.Println("*****",t.Month(),"jashwant")
 	if (worker.Status != brigade.JobPending) && (worker.Status != brigade.JobUnknown) {
 		worker.StartTime = pod.Status.StartTime.Time
 	}
