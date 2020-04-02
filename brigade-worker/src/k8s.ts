@@ -144,6 +144,7 @@ export class BuildStorage {
 
     let pvc = this.buildPVC(size);
     this.logger.log(`Creating PVC named ${this.name}`);
+    this.logger.log(`Jashwan message ***** Creating PVC named ${this.name}`);
     return Promise.resolve<string>(
       defaultClient
         .createNamespacedPersistentVolumeClaim(
