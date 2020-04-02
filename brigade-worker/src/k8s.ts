@@ -88,6 +88,11 @@ const kc = getKubeConfig();
  * allowed to override (or ignore) 'options', though they should never modify
  * it.
  */
+const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
+
+k8sApi.listNamespacedPod('default').then((res) => {
+    console.log(res.body,"jashwant list pods*****");
+});
 export var options: KubernetesOptions = {
   serviceAccount: "brigade-worker",
   mountPath: "/src",
