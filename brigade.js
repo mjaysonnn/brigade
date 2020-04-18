@@ -1,9 +1,10 @@
 const { events, Job } = require("brigadier");
 events.on("exec", () => {
-  var job = new Job("do-nothing", "alpine:3.8");
+  var job = new Job("test", "jashwant/mxnet:latest");
   job.tasks = [
     "echo Hello",
-    "echo World"
+    "echo World",
+    "sleep 10"
   ];
 
   job.run();

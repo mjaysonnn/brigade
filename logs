@@ -1,0 +1,57 @@
+prestart: no dependencies file found
+[brigade] brigade-worker version: 1.2.1
+i**************influx deleting container    [ groupsTagsKeys: [],
+  groupRows: [],
+  group: [Function: groupMethod],
+  groups: [Function: groupsMethod] ]
+i**************influx deleting jobstats    [ groupsTagsKeys: [],
+  groupRows: [],
+  group: [Function: groupMethod],
+  groups: [Function: groupsMethod] ]
+[ { hello: 'world',
+    n: 5,
+    today: 2020-04-15T14:37:17.701Z,
+    nedbIsAwesome: true,
+    notthere: null,
+    notToBeSaved: undefined,
+    fruits: [ 'apple', 'orange', 'pear' ],
+    infos: { name: 'nedb' },
+    _id: '95ddBJalAi8GmKJ3' } ]
+[brigade:k8s] Creating PVC named brigade-worker-01e5z4bhx7s9zmdsyjtxmbh2h0
+[brigade:k8s] Jashwan message ***** Creating PVC named brigade-worker-01e5z4bhx7s9zmdsyjtxmbh2h0
+[brigade:k8s] *****in function print pod list******podsnull null 1586961437761
+[brigade:k8s] runner name istest-01e5z4bhx7s9zmdsyjtxmbh2h0
+image pull policy Always
+Job arrival time is  1586961437775   test   test-01e5z4bhx7s9zmdsyjtxmbh2h0
+[brigade:k8s] Creating secret test-01e5z4bhx7s9zmdsyjtxmbh2h0candidate pod null
+influx container results  []
+influx job results  [{"time":"2020-04-15T14:37:17.785Z","ID":"test-01e5z4bhx7s9zmdsyjtxmbh2h0","arrivalTime":1586961437775,"host":"brigade-worker-01e5z4bhx7s9zmdsyjtxmbh2h0","type":"test"}]
+old job []
+[brigade:k8s] Creating pod test test-01e5z4bhx7s9zmdsyjtxmbh2h0
+[brigade:k8s]  creating new pod%%%%%%%%%%%%
+[ { jobname: 'test-01e5z4bhx7s9zmdsyjtxmbh2h0',
+    _id: 'IzvLknDN0RBGvFoG' } ]
+createnamespaced pod test-01e5z4bhx7s9zmdsyjtxmbh2h0
+[brigade:k8s] caught exception in pod reason undefined
+  [0m[97m[41mError[0m[90m:[0m[37m [0m
+[0m  [0m
+[0m  [0m[90m-[0m [0m[93mk8s.js[0m[90m:[0m[93m740[0m[37m [0m[37mpvcPromise.then.then.then.catch.reason[0m
+[0m  [0m  [0m[90m/home/src/dist/k8s.js:740:24[0m
+[0m  [0m
+[0m  [0m
+[0m  [0m[90m-[0m [0m[93mnext_tick.js[0m[90m:[0m[93m189[0m[37m [0m[37mprocess._tickCallback[0m
+[0m  [0m  [0m[90minternal/process/next_tick.js:189:7[0m
+[0m  [0m
+[0m
+[brigade:app]   [0m[97m[41mError[0m[90m:[0m[37m [0m[97mjob test(test-01e5z4bhx7s9zmdsyjtxmbh2h0): Error[0m
+[0m  [0m
+[0m  [0m[90m-[0m [0m[93mbrigadier.js[0m[90m:[0m[93m56[0m[37m [0m[37mjr.run.catch.err[0m
+[0m  [0m  [0m[90m/home/src/dist/brigadier.js:56:35[0m
+[0m  [0m
+[0m  [0m
+[0m  [0m[90m-[0m [0m[93mnext_tick.js[0m[90m:[0m[93m189[0m[37m [0m[37mprocess._tickCallback[0m
+[0m  [0m  [0m[90minternal/process/next_tick.js:189:7[0m
+[0m  [0m
+[0m
+[brigade:app] error handler is cleaning up
+[brigade:k8s] Destroying PVC named brigade-worker-01e5z4bhx7s9zmdsyjtxmbh2h0

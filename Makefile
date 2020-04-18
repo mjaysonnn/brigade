@@ -30,6 +30,7 @@ ifneq ($(SKIP_DOCKER),true)
 	GO_DOCKER_CMD := docker run \
 		-it \
 		--rm \
+		--network=host \
 		-e SKIP_DOCKER=true \
 		-v $(PROJECT_ROOT):/go/src/$(BASE_PACKAGE_NAME) \
 		-w /go/src/$(BASE_PACKAGE_NAME) $(GO_DEV_IMAGE)
@@ -37,6 +38,7 @@ ifneq ($(SKIP_DOCKER),true)
 	JS_DOCKER_CMD := docker run \
 		-it \
 		--rm \
+		--network=host \
 		-e SKIP_DOCKER=true \
 		-e KUBECONFIG="/code/$(BASE_PACKAGE_NAME)/brigade-worker/test/fake_kubeconfig.yaml" \
 		-v $(PROJECT_ROOT):/code/$(BASE_PACKAGE_NAME) \
@@ -51,7 +53,7 @@ HELM ?= helm
 # Binaries and Docker images we build and publish                              #
 ################################################################################
 
-IMAGES := brigade-api brigade-controller brigade-cr-gateway brigade-generic-gateway brigade-vacuum brig brigade-worker git-sidecar
+IMAGES := brigade-worker
 
 ifdef DOCKER_REGISTRY
 	DOCKER_REGISTRY := $(DOCKER_REGISTRY)/

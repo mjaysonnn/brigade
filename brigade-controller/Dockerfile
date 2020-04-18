@@ -5,6 +5,7 @@ WORKDIR /go/src/github.com/brigadecore/brigade
 COPY brigade-controller/ brigade-controller/
 COPY pkg/ pkg/
 COPY vendor/ vendor/
+RUN go get github.com/mattn/go-sqlite3
 RUN go build -ldflags "$LDFLAGS" -o bin/brigade-controller ./brigade-controller/cmd/brigade-controller
 RUN mkdir /scratch-tmp
 

@@ -150,8 +150,8 @@ export class App {
         // So at this point, the after event has fired and we can cleanup.
         if (!this.storageIsDestroyed) {
           this.logger.log("beforeExit(2): destroying storage");
-          this.storageIsDestroyed = true;
-          destroyStorage();
+          //this.storageIsDestroyed = true;
+          //destroyStorage();
         }
         return;
       }

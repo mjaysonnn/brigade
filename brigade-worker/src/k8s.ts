@@ -12,6 +12,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as request from "request";
 import * as byline_1 from "byline";
+import * as nedb from "nedb";
+import JSONPath from 'jsonpath-plus';
+
 
 // The internals for running tasks. This must be loaded before any of the
 // objects that use run().
@@ -21,8 +24,126 @@ import * as byline_1 from "byline";
 
 // expiresInMSec is the number of milliseconds until pod expiration
 // After this point, the pod can be garbage collected (a feature not yet implemented)
-const expiresInMSec = 1000 * 60 * 60 * 24 * 30;
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://10.52.3.47:27017/mydb";
 
+MongoClient.connect(url, function(err, db) {
+  if (err)
+  {
+    console.log("&&&**()*(&&*(( error mongodb connecting ", err.stack);
+    throw err;
+  }
+  console.log("Database created!");
+  db.close();
+});
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("mydb");
+  dbo.createCollection("job_stats", function(err, res) {
+    if (err) throw err;
+    console.log("Jobstats Collection created!");
+    db.close();
+  });
+});
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("mydb");
+  dbo.createCollection("containers", function(err, res) {
+    if (err) throw err;
+    console.log("Containers Collection created!");
+    db.close();
+  });
+});
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("mydb");
+  var myobj = { name: "Company Inc", address: "23 Meyer Hill Dr" };
+  dbo.collection("customers").insertOne(myobj, function(err, res) {
+    if (err) throw err;
+    console.log("1 document inserted");
+    db.close();
+  });
+});
+
+/*var Datastore = require("nedb")
+  , db = new Datastore({ filename: '/home/mydatabase.db', autoload: true });
+// You can issue commands right away
+var doc = { hello: 'world'
+               , n: 5
+               , today: new Date()
+               , nedbIsAwesome: true
+               , notthere: null
+               , notToBeSaved: undefined  // Will not be saved
+               , fruits: [ 'apple', 'orange', 'pear' ]
+               , infos: { name: 'nedb' }
+               };
+
+db.insert(doc, function (err, newDoc) {   // Callback is optional
+  // newDoc is the newly inserted document, including its _id
+  // newDoc has no key called notToBeSaved since its value was undefined
+});
+db.find({hello : "world"}, function (err,docs){ console.log(docs); });*/
+
+
+const Influx = require("influx")
+const os = require('os')
+
+/**
+ * Create a new Influx client. We tell it to use the
+ * `express_response_db` database by default, and give
+ * it some information about the schema we're writing.
+ */
+
+const influx = new Influx.InfluxDB({
+  host: '10.52.3.47',
+  database: 'job_db',
+  schema: [
+    {
+      measurement: 'job_stats',
+      fields: {
+        arrivalTime: Influx.FieldType.INTEGER,
+        ID: Influx.FieldType.STRING ,
+        type: Influx.FieldType.STRING
+    },
+      tags: [
+        'host'
+      ]
+    },
+    {
+      measurement: 'containers',
+      fields: {
+        createTime: Influx.FieldType.INTEGER,
+        ID: Influx.FieldType.STRING ,
+        idle: Influx.FieldType.BOOLEAN
+    },
+      tags: [
+        'host'
+      ]
+    }
+  ]
+})
+
+influx.query(
+  `delete from containers`
+  ).then(result => {
+    //res.json(result)
+    console.log("i**************influx deleting container ", " ", result);
+  }).catch(err => {
+    //res.status(500).send(err.stack)
+    console.log("%%%%********error influx deleting containers ");
+  })
+influx.query(
+  `delete from job_stats`
+  ).then(result => {
+    //res.json(result)
+    console.log("i**************influx deleting jobstats ", " ", result);
+  }).catch(err => {
+    //res.status(500).send(err.stack)
+    console.log("%%%%********error influx deleting jobstats ");
+  })
+
+const expiresInMSec = 1000 * 60 * 60 * 24 * 30;
+let candidate_pod = null;
 const defaultClient = kubernetes.Config.defaultClient();
 const retry = (fn, args, delay, times) => {
   // exponential back-off retry if status is in the 500s
@@ -59,7 +180,7 @@ wrapClient([
   defaultClient.createNamespacedSecret,
   defaultClient.createNamespacedPod,
   defaultClient.readNamespacedPersistentVolumeClaim,
-  defaultClient.deleteNamespacedPod
+  defaultClient.deleteNamespacedPod,
 ]);
 
 const getKubeConfig = (): kubernetes.KubeConfig => {
@@ -74,7 +195,14 @@ const getKubeConfig = (): kubernetes.KubeConfig => {
   return kc;
 };
 const kc = getKubeConfig();
-
+const k8sApi = kc.makeApiClient(kubernetes.CoreV1Api);
+var pods = null;
+k8sApi.listNamespacedPod('default')
+    .then((res) => {
+        // tslint:disable-next-line:no-console
+        pods = res.body;
+        //console.log("pod list ", res.body); //, "\n pods", pods);
+    });
 /**
  * options is the set of configuration options for the library.
  *
@@ -88,11 +216,7 @@ const kc = getKubeConfig();
  * allowed to override (or ignore) 'options', though they should never modify
  * it.
  */
-const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
-k8sApi.listNamespacedPod('default').then((res) => {
-    console.log(res.body,"jashwant list pods*****");
-});
 export var options: KubernetesOptions = {
   serviceAccount: "brigade-worker",
   mountPath: "/src",
@@ -146,10 +270,35 @@ export class BuildStorage {
     this.name = e.workerID.toLowerCase();
     this.build = e.buildID;
     this.logger.logLevel = e.logLevel;
-
     let pvc = this.buildPVC(size);
-    this.logger.log(`Creating PVC named ${this.name}`);
-    this.logger.log(`Jashwan message ***** Creating PVC named ${this.name}`);
+    this.logger.log("Creating PVC named ", this.name);
+    this.logger.log("Jashwan message ***** Creating PVC named " , this.name);
+    const k8sApi = kc.makeApiClient(kubernetes.CoreV1Api);
+    var pods = null;
+    var date = new Date();
+    k8sApi.listNamespacedPod('default')
+    .then((res) => {
+        // tslint:disable-next-line:no-console
+        pods = res.body;
+        
+        res.body.items.forEach(element => {
+          if (element.metadata.name.includes("example")){
+          this.logger.log("example pod ",element.metadata.name);
+            var timestamp = date.getTime();
+            candidate_pod = element;
+            candidate_pod.metadata.name = `${"example"}-${this.build}`;
+            var body = "not candidate pod";
+            this.logger.log("found pod " + candidate_pod.metadata.name + " " + timestamp);
+
+            }
+          })
+          });
+        var timestamp = date.getTime();
+        this.logger.log("*****in function print pod list******" + "pods" + pods + " " + candidate_pod + " " + timestamp);
+// Define recursive function to print nested values
+    
+    //this.logger.log(objects.item + "\n");
+     
     return Promise.resolve<string>(
       defaultClient
         .createNamespacedPersistentVolumeClaim(
@@ -160,6 +309,7 @@ export class BuildStorage {
           return this.name;
         })
     );
+    
   }
   /**
    * destroy deletes the PVC.
@@ -248,12 +398,15 @@ export class JobRunner implements jobs.JobRunner {
   event: BrigadeEvent;
   job: jobs.Job;
   client: kubernetes.CoreV1Api;
+  rclient: kubernetes.ExtensionsV1beta1Api;
+  imagePullPolicy: boolean;
   options: KubernetesOptions;
   serviceAccount: string;
   logger: ContextLogger;
   pod: kubernetes.V1Pod;
   cancel: boolean;
   reconnect: boolean;
+  replicaset: kubernetes.V1beta1ReplicaSet;
 
   constructor() { }
 
@@ -273,26 +426,56 @@ export class JobRunner implements jobs.JobRunner {
     this.client = defaultClient;
     this.serviceAccount = job.serviceAccount || this.options.serviceAccount;
     this.pod = undefined;
+    var date = new Date();
     this.cancel = false;
     this.reconnect = false;
-
+    this.imagePullPolicy = false;
     // $JOB-$BUILD
     this.name = `${job.name}-${this.event.buildID}`;
     let commit = e.revision.commit || "master";
     let secName = this.name;
     let runnerName = this.name;
-
+    this.logger.log("runner name is" + runnerName)
     this.secret = newSecret(secName);
-    this.runner = newRunnerPod(
+    k8sApi.listNamespacedPod('default')
+      .then((res) => {
+          var timestamp = date.getTime();
+          pods = res.body;
+          res.body.items.forEach(element => {
+          //this.logger.log("element found", element.metadata.name)
+          
+          if (element.metadata.name.includes("example")){
+            var timestamp = date.getTime();
+            candidate_pod = element;
+            this.job.name = element.metadata.name;
+            var body = "not candidate pod";
+            this.logger.log("found pod " + candidate_pod.metadata.name + " " + timestamp);
+
+            }
+          })
+          if (candidate_pod){
+          this.logger.log(" listing all pods  " + pods.items + "candidate pod " + candidate_pod.metadata.name + " " + timestamp);
+        }
+      })
+    //let candidate_pod = null;
+      const secondFunction = async () => {
+          const result = await f(runnerName,runnerName)
+          this.runner = newRunnerPod(
       runnerName,
       job.image,
-      job.imageForcePull,
+      result,
       this.serviceAccount,
       job.resourceRequests,
       job.resourceLimits,
       job.annotations,
       job.shell
     );
+  // do something else here after firstFunction completes
+  }
+      
+  
+  
+    //this.runner.spec.containers[0].imagePullPolicy = "Never";
 
     // Experimenting with setting a deadline field after which something
     // can clean up existing builds.
@@ -308,7 +491,7 @@ export class JobRunner implements jobs.JobRunner {
     this.secret.metadata.labels.expires = String(expiresAt);
     this.secret.metadata.labels.worker = e.workerID;
     this.secret.metadata.labels.build = e.buildID;
-
+    
     let envVars: kubernetes.V1EnvVar[] = [];
     for (let key in job.env) {
       let val = job.env[key];
@@ -379,9 +562,8 @@ export class JobRunner implements jobs.JobRunner {
       );
       this.runner.spec.containers[0].volumeMounts.push(
         { name: "vcs-sidecar", mountPath: mountPath } as kubernetes.V1VolumeMount
-      );
+      )
     }
-
     if (job.imagePullSecrets) {
       this.runner.spec.imagePullSecrets = [];
       for (let secret of job.imagePullSecrets) {
@@ -397,8 +579,8 @@ export class JobRunner implements jobs.JobRunner {
     }
     if (job.host.name) {
       this.runner.spec.nodeName = job.host.name;
-    }
-    if (job.host.nodeSelector && job.host.nodeSelector.size > 0) {
+    
+}    if (job.host.nodeSelector && job.host.nodeSelector.size > 0) {
       if (!this.runner.spec.nodeSelector) {
         this.runner.spec.nodeSelector = {};
       }
@@ -486,8 +668,10 @@ export class JobRunner implements jobs.JobRunner {
         this.runner.spec.containers[i].securityContext.privileged = true;
       }
     }
-    return this;
+
+  return this;
   }
+
 
   /**
    * cacheName returns the name of this job's cache PVC.
@@ -506,9 +690,10 @@ export class JobRunner implements jobs.JobRunner {
     let podName = this.name;
     let k = this.client;
     let ns = this.project.kubernetes.namespace;
+    this.logger.log("pod " + podName + " still unscheduled or pending when job was canceled; no logs to return." + this.pod + " " + this.pod.status.phase);
     if (this.cancel && this.pod == undefined || this.pod.status.phase == "Pending") {
       return Promise.resolve<string>(
-        "pod " + podName + " still unscheduled or pending when job was canceled; no logs to return.")
+        "pod " + podName + " still unscheduled or pending when job was canceled; no logs to return." + this.pod + " " + this.pod.status.phase);
     }
     return Promise.resolve<string>(
       k.readNamespacedPodLog(podName, ns).then(result => {
@@ -540,27 +725,65 @@ export class JobRunner implements jobs.JobRunner {
 
     let ns = this.project.kubernetes.namespace;
     let k = this.client;
+    let schedule_pod = null;
+    let imagePullPolicy = "";
     let pvcPromise = this.checkOrCreateCache();
-
-    return new Promise((resolve, reject) => {
+    /*const url = `${kc.getCurrentCluster().server}/api/v1/namespaces/${
+      this.project.kubernetes.namespace
+      }/pods`;
+    const requestOptions = {
+      method: "GET",
+      uri: url,
+      useQuerystring: true,
+      json: true
+    };
+    kc.applyToRequest(requestOptions);
+    const stream = new byline_1.LineStream();
+    stream.on("data", data => {
+    let obj = null;
+    obj = JSON.parse(data);
+      //if (obj && obj.object) {
+    this.logger.log("pod url"+url, "pod info" + obj + obj.object);
+        //this.pod = obj.object as kubernetes.V1Pod;
+      //}
+    });
+    const pods_info = JSON.stringify(url)
+    this.logger.log("*****pod url"+url, "pod info" + pods_info);*/
+    const k8sApi = kc.makeApiClient(kubernetes.CoreV1Api);
+    var pods = null;
+    var date = new Date();
+  
+   return new Promise((resolve, reject) => {
       pvcPromise
         .then(() => {
           this.logger.log("Creating secret " + this.secret.metadata.name);
           return k.createNamespacedSecret(ns, this.secret);
         })
         .then(result => {
-          this.logger.log("Creating pod " + this.runner.metadata.name);
+          var timestamp = date.getTime();
+          this.logger.log("Creating pod " + this.runner.metadata.labels.jobname, this.runner.metadata.name);
           // Once namespace creation has been accepted, we create the pod.
+          this.logger.log(" creating new pod%%%%%%%%%%%%");
           return k.createNamespacedPod(ns, this.runner);
         })
         .then(result => {
+          var timestamp = date.getTime();
+          result.body.spec = new kubernetes.V1PodSpec();
+          result.body.spec.restartPolicy = this.runner.spec.restartPolicy ; 
+          result.body.spec.containers[0].livenessProbe.initialDelaySeconds = 15;
+          result.body.spec.containers[0].livenessProbe.timeoutSeconds= 2;
+          //candidate_pod.spec.restartPolicy = "Always";
+          this.logger.log("Created pod this metadata is " + this.runner.metadata.name + "result is " + result.body.metadata.name + " " + timestamp + " " + imagePullPolicy);
           resolve(this);
         })
         .catch(reason => {
+          this.logger.log("caught exception in pod", "reason " + reason.body)
           reject(new Error(reason.body.message));
         });
     });
   }
+
+  
 
   /**
    * checkOrCreateCache handles creating the cache if necessary.
@@ -617,6 +840,7 @@ export class JobRunner implements jobs.JobRunner {
       useQuerystring: true,
       json: true
     };
+
     kc.applyToRequest(requestOptions);
     const stream = new byline_1.LineStream();
     stream.on("data", data => {
@@ -630,6 +854,7 @@ export class JobRunner implements jobs.JobRunner {
       } catch (e) { } //let it stay connected.
       if (obj && obj.object) {
         this.pod = obj.object as kubernetes.V1Pod;
+        this.logger.log("start updating pod ", this.pod.metadata.name + " " +this.pod.status );
       }
     });
     const req = request(requestOptions, (error, response, body) => {
@@ -649,7 +874,7 @@ export class JobRunner implements jobs.JobRunner {
   public wait(): Promise<jobs.Result> {
     // Should probably protect against the case where start() was not called
     let k = this.client;
-    let timeout = this.job.timeout || 60000;
+    let timeout = this.job.timeout || 6000;
     let name = this.name;
     let ns = this.project.kubernetes.namespace;
     let podUpdater: request.Request = undefined;
@@ -687,8 +912,7 @@ export class JobRunner implements jobs.JobRunner {
           podUpdater = this.startUpdatingPod();
         }
         if (!this.pod || this.pod.status == undefined) {
-          this.logger.log("Pod not yet scheduled");
-          return;
+           return;
         }
 
         let phase = this.pod.status.phase;
@@ -727,6 +951,12 @@ export class JobRunner implements jobs.JobRunner {
         }
         if (!this.job.streamLogs || (this.job.streamLogs && this.pod.status.phase != "Running")) {
           // don't display "Running" when we're asked to display job Pod logs
+          k.readNamespacedPodLog(this.pod.metadata.name, ns)
+          .then(result => {
+            resolve("success logs");
+            this.logger.log("pod logs", result.body);
+          });
+          
           this.logger.log(`${this.pod.metadata.namespace}/${this.pod.metadata.name} phase ${this.pod.status.phase}`);
         }
         // In all other cases we fall through and let the fn be run again.
@@ -756,7 +986,7 @@ export class JobRunner implements jobs.JobRunner {
         const requestOptions = {
           qs: {
             follow: true,
-            timeoutSeconds: 200,
+            timeoutSeconds: 20,
           },
           method: "GET",
           uri: url,
@@ -877,7 +1107,7 @@ function sidecarSpec(
       envVar("BRIGADE_LOG_LEVEL", LogLevel[e.logLevel])
     ]);
   spec.image = imageTag;
-  (spec.imagePullPolicy = "IfNotPresent"),
+  (spec.imagePullPolicy = "Always"),
     (spec.volumeMounts = [volumeMount("vcs-sidecar", local)]);
 
   if (project.repo.sshKey) {
@@ -937,7 +1167,108 @@ function sidecarSpec(
   return spec;
 }
 
-function newRunnerPod(
+/*        return new Promise((resolve, reject) => {
+          var response="successfully created";
+          //if (candidate_pod.metadata.name.includes("example")) {
+           resolve({response: response, pod: pod});
+          //} 
+        });
+}*/
+
+ async function f(jobname, name): Promise<boolean> {
+ let client;
+ var idleContainer = null;
+var foundIdle = false;
+const arrivalTime = Date.now();
+var imagePullPolicy = true;
+var containerExist = false;
+console.log(" = Job arrival time is ",arrivalTime, " ", jobname, " ", name);
+var toinsertType = jobname;
+var toinsertID =  name;
+var updated = false;
+var inserted = false;
+ var toinsertType =  jobname;
+ var toinsertID =    name;
+ try
+ {
+ client = await MongoClient.connect(url);
+ console.log("Connected correctly to server");
+
+ //if (err) {console.log("job stats insert error " , err.stack);}
+ var dbo = client.db("mydb");
+ var obj = { arrivalTime: arrivalTime, ID: toinsertID, type: toinsertType };
+ await dbo.collection("job_stats").insertOne(obj);
+ //if (err) throw err;
+ console.log("1 job stats document inserted");
+ } catch (err) {
+ }
+let count = await dbo.collection("containers").count();
+console.log("container count is ", count);
+if (count === 0) {
+  var myobj = { createTime: arrivalTime, ID: toinsertID,  idle: "true"}
+  await dbo.collection("containers").insertOne(myobj);
+  console.log("1 container document inserted"); 
+  imagePullPolicy = true;
+  inserted = true;
+  }
+ else
+ {
+  var query = {idle: "true"};
+      var projection = {
+      "ID": 1
+      }
+      let container = await dbo.collection("containers").findOne(query,projection)
+      if (container != null){
+
+          idleContainer = container.ID;
+          var options = { "upsert": false };
+          console.log("Successfully found document ", idleContainer);
+          foundIdle = true;
+          let updtatedContainer = await dbo.collection("containers").findOneAndUpdate({idle:"true"}, {$set:{idle: "false", ID: toinsertID}})
+          imagePullPolicy = false;
+          console.log("1 container updated ", updtatedContainer.value.createTime, updtatedContainer.value.ID, updtatedContainer.value.idle, imagePullPolicy);
+          updated = true;
+      }
+      else{
+        console.log('No document matches the provided query.');
+        var myobj = { createTime: arrivalTime, ID: toinsertID,  idle: "false"}
+
+        await dbo.collection("containers").insertOne(myobj);
+      
+        console.log("inserting new container ")
+        imagePullPolicy = true;
+      }
+          //this.runner.spec.containers[0].imagePullPolicy = "Always";
+  }
+  if (imagePullPolicy)
+  {
+  console.log("imagePullPolicy is always ", imagePullPolicy);
+  //this.runner.spec.containers[0].imagePullPolicy = "Always";
+  }
+  else 
+  {
+  console.log("imagePullPolicy is Never ", imagePullPolicy);  
+  //this.runner.spec.containers[0].imagePullPolicy = "Never";
+  }
+   client.close();
+return (imagePullPolicy);
+}
+
+function sleepwait(): Promise<jobs.Result> {
+  console.log("insleepwait", candidate_pod);
+  return this.start()
+      .then(r => r.wait())
+      .then(r => {
+        return this.logs();
+      })
+      .then(response => {
+        return new K8sResult(response);
+      });
+}
+
+
+
+ function newRunnerPod(
   podname: string,
   brigadeImage: string,
   imageForcePull: boolean,
@@ -946,8 +1277,9 @@ function newRunnerPod(
   resourceLimits: jobs.JobResourceLimit,
   jobAnnotations: { [key: string]: string },
   jobShell: string
-): kubernetes.V1Pod {
+) {
   let pod = new kubernetes.V1Pod();
+  console.log("defining new runner pod ***************")
   pod.metadata = new kubernetes.V1ObjectMeta();
   pod.metadata.name = podname;
   pod.metadata.labels = {
@@ -964,8 +1296,22 @@ function newRunnerPod(
     jobShell = "/bin/sh";
   }
   c1.command = [jobShell, "/hook/main.sh"];
+  
 
-  c1.imagePullPolicy = imageForcePull ? "Always" : "IfNotPresent";
+  /*f(podname, podname).then(result=>{
+          if (result)
+          {
+          imageForcePull = result;
+          c1.imagePullPolicy = "Always";
+          }
+          else{
+          imageForcePull = result;
+          c1.imagePullPolicy = "Never";
+          }
+          console.log("all completed ", result, this.imagePullPolicy);
+
+        });*/
+
   c1.securityContext = new kubernetes.V1SecurityContext();
 
   // Setup pod container resources (requests and limits).
@@ -989,7 +1335,28 @@ function newRunnerPod(
   pod.spec.restartPolicy = "Never";
   pod.spec.serviceAccount = serviceAccount;
   pod.spec.serviceAccountName = serviceAccount;
+  /*setTimeout( function(){
+    f(podname, podname).then(result=>{
+   imageForcePull = result;
+  console.log("all completed ", result);
+  });
+  
+  //imageForcePull =  callback(podname, podname);
+  if (imageForcePull)
+  {
+  c1.imagePullPolicy = "Always";
+  console.log("runnerpod image pull policy", c1.imagePullPolicy)
+  }
+  else
+  {
+    c1.imagePullPolicy = "Never";
+    console.log("runnerpod image pull policy", c1.imagePullPolicy)
+  }
+    console.log("after async call to look for containers&&***&*&(&(&(&&(&((*********");
+    return (pod);
+  }, 1000 );*/
   return pod;
+
 }
 
 function newSecret(name: string): kubernetes.V1Secret {
