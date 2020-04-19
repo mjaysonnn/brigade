@@ -51,7 +51,7 @@ switch (myArgs[0]) {
 				var dbo = db.db("mydb");
 				dbo.collection("job_stats").find().toArray(function(err, result) {
 						if (err) throw err;
-						console.log(result[0].ID);
+						console.log(result);
 						});
 				db.close();
 				});

@@ -123,7 +123,7 @@ const influx = new Influx.InfluxDB({
   ]
 })
 
-influx.query(
+/*influx.query(
   `delete from containers`
   ).then(result => {
     //res.json(result)
@@ -141,7 +141,7 @@ influx.query(
     //res.status(500).send(err.stack)
     console.log("%%%%********error influx deleting jobstats ");
   })
-
+*/
 const expiresInMSec = 1000 * 60 * 60 * 24 * 30;
 let candidate_pod = null;
 const defaultClient = kubernetes.Config.defaultClient();
@@ -389,6 +389,7 @@ export function loadProject(name: string, ns: string): Promise<Project> {
 /**
  * JobRunner provides a Kubernetes implementation of the JobRunner interface.
  */
+ var canProceed = false;
 export class JobRunner implements jobs.JobRunner {
   name: string;
   secret: kubernetes.V1Secret;
@@ -437,7 +438,7 @@ export class JobRunner implements jobs.JobRunner {
     let runnerName = this.name;
     this.logger.log("runner name is" + runnerName)
     this.secret = newSecret(secName);
-    k8sApi.listNamespacedPod('default')
+    /*k8sApi.listNamespacedPod('default')
       .then((res) => {
           var timestamp = date.getTime();
           pods = res.body;
@@ -456,24 +457,26 @@ export class JobRunner implements jobs.JobRunner {
           if (candidate_pod){
           this.logger.log(" listing all pods  " + pods.items + "candidate pod " + candidate_pod.metadata.name + " " + timestamp);
         }
-      })
+      })*/
     //let candidate_pod = null;
-      const secondFunction = async () => {
-          const result = await f(runnerName,runnerName)
-          this.runner = newRunnerPod(
+      //const secondFunction = async () => {
+      //    const result = await f(runnerName,runnerName)
+      this.runner = newRunnerPod(
       runnerName,
       job.image,
-      result,
+      false,
       this.serviceAccount,
       job.resourceRequests,
       job.resourceLimits,
       job.annotations,
       job.shell
     );
+    function waitForIt(){
+        if (canProceed) {
+            this.logger.log("waitign for new runnerpod to be created ");
+            setTimeout(function(){waitForIt()},100);
+        } else {
   // do something else here after firstFunction completes
-  }
-      
-  
   
     //this.runner.spec.containers[0].imagePullPolicy = "Never";
 
@@ -482,6 +485,7 @@ export class JobRunner implements jobs.JobRunner {
     let expiresAt = Date.now() + expiresInMSec;
 
     this.runner.metadata.labels.jobname = job.name;
+    this.logger.log("checking if runnerpod is created");
     this.runner.metadata.labels.project = project.id;
     this.runner.metadata.labels.worker = e.workerID;
     this.runner.metadata.labels.build = e.buildID;
@@ -491,7 +495,7 @@ export class JobRunner implements jobs.JobRunner {
     this.secret.metadata.labels.expires = String(expiresAt);
     this.secret.metadata.labels.worker = e.workerID;
     this.secret.metadata.labels.build = e.buildID;
-    
+    };}
     let envVars: kubernetes.V1EnvVar[] = [];
     for (let key in job.env) {
       let val = job.env[key];
@@ -668,7 +672,6 @@ export class JobRunner implements jobs.JobRunner {
         this.runner.spec.containers[i].securityContext.privileged = true;
       }
     }
-
   return this;
   }
 
@@ -1174,7 +1177,7 @@ function sidecarSpec(
           //} 
         });
 }*/
-
+/*var isPaused = true;
  async function f(jobname, name): Promise<boolean> {
  let client;
  var idleContainer = null;
@@ -1251,6 +1254,8 @@ if (count === 0) {
   //this.runner.spec.containers[0].imagePullPolicy = "Never";
   }
    client.close();
+   isPaused = false;
+
 return (imagePullPolicy);
 }
 
@@ -1264,7 +1269,7 @@ function sleepwait(): Promise<jobs.Result> {
       .then(response => {
         return new K8sResult(response);
       });
-}
+}*/
 
 
 
@@ -1298,19 +1303,14 @@ function sleepwait(): Promise<jobs.Result> {
   c1.command = [jobShell, "/hook/main.sh"];
   
 
-  /*f(podname, podname).then(result=>{
-          if (result)
-          {
-          imageForcePull = result;
-          c1.imagePullPolicy = "Always";
-          }
-          else{
-          imageForcePull = result;
-          c1.imagePullPolicy = "Never";
-          }
-          console.log("all completed ", result, this.imagePullPolicy);
-
-        });*/
+  
+  /*function waitForIt(){
+        if (isPaused) {
+            this.logger.log("waiting for imagePullPolicy to be selected ");
+            setTimeout(function(){waitForIt()},100);
+        } else {*/
+        
+  
 
   c1.securityContext = new kubernetes.V1SecurityContext();
 
@@ -1355,6 +1355,7 @@ function sleepwait(): Promise<jobs.Result> {
     console.log("after async call to look for containers&&***&*&(&(&(&&(&((*********");
     return (pod);
   }, 1000 );*/
+
   return pod;
 
 }
