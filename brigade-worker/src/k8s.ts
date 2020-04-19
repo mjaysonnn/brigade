@@ -26,7 +26,7 @@ import JSONPath from 'jsonpath-plus';
 // After this point, the pod can be garbage collected (a feature not yet implemented)
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://10.52.3.47:27017/mydb";
-
+ var canProceed = true;
 MongoClient.connect(url, function(err, db) {
   if (err)
   {
@@ -389,7 +389,7 @@ export function loadProject(name: string, ns: string): Promise<Project> {
 /**
  * JobRunner provides a Kubernetes implementation of the JobRunner interface.
  */
- var canProceed = false;
+
 export class JobRunner implements jobs.JobRunner {
   name: string;
   secret: kubernetes.V1Secret;
@@ -473,7 +473,7 @@ export class JobRunner implements jobs.JobRunner {
     );
     function waitForIt(){
         if (canProceed) {
-            this.logger.log("waitign for new runnerpod to be created ");
+            this.logger.log("waiting for new runnerpod to be created ");
             setTimeout(function(){waitForIt()},100);
         } else {
   // do something else here after firstFunction completes
@@ -1177,7 +1177,7 @@ function sidecarSpec(
           //} 
         });
 }*/
-/*var isPaused = true;
+var isPaused = true;
  async function f(jobname, name): Promise<boolean> {
  let client;
  var idleContainer = null;
@@ -1255,7 +1255,7 @@ if (count === 0) {
   }
    client.close();
    isPaused = false;
-
+   
 return (imagePullPolicy);
 }
 
@@ -1269,7 +1269,7 @@ function sleepwait(): Promise<jobs.Result> {
       .then(response => {
         return new K8sResult(response);
       });
-}*/
+}
 
 
 
@@ -1311,7 +1311,21 @@ function sleepwait(): Promise<jobs.Result> {
         } else {*/
         
   
+ f(podname, podname).then(result=>{
+          if (result)
+          {
+          imageForcePull = result;
+          c1.imagePullPolicy = "Always";
+          }
+          else{
+          imageForcePull = result;
+          c1.imagePullPolicy = "Never";
+          }
+          console.log("all completed ", result, this.imagePullPolicy);
 
+        });
+    //c1.imagePullPolicy = "Always";
+    console.log("image pull policy", c1.imagePullPolicy);
   c1.securityContext = new kubernetes.V1SecurityContext();
 
   // Setup pod container resources (requests and limits).
@@ -1355,7 +1369,7 @@ function sleepwait(): Promise<jobs.Result> {
     console.log("after async call to look for containers&&***&*&(&(&(&&(&((*********");
     return (pod);
   }, 1000 );*/
-
+  canProceed = false;
   return pod;
 
 }

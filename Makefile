@@ -53,8 +53,8 @@ HELM ?= helm
 # Binaries and Docker images we build and publish                              #
 ################################################################################
 
-IMAGES := brigade-worker
-
+IMAGES := brigade-worker 
+VERSION:= latest
 ifdef DOCKER_REGISTRY
 	DOCKER_REGISTRY := $(DOCKER_REGISTRY)/
 endif
