@@ -471,10 +471,10 @@ export class JobRunner implements jobs.JobRunner {
       job.annotations,
       job.shell
     );
-    function waitForIt(){
+    function waitFor(){
         if (canProceed) {
             this.logger.log("waiting for new runnerpod to be created ");
-            setTimeout(function(){waitForIt()},100);
+            setTimeout(function(){waitFor()},100);
         } else {
   // do something else here after firstFunction completes
   
@@ -496,6 +496,7 @@ export class JobRunner implements jobs.JobRunner {
     this.secret.metadata.labels.worker = e.workerID;
     this.secret.metadata.labels.build = e.buildID;
     };}
+    waitFor();
     let envVars: kubernetes.V1EnvVar[] = [];
     for (let key in job.env) {
       let val = job.env[key];
@@ -1311,21 +1312,9 @@ function sleepwait(): Promise<jobs.Result> {
         } else {*/
         
   
- f(podname, podname).then(result=>{
-          if (result)
-          {
-          imageForcePull = result;
-          c1.imagePullPolicy = "Always";
-          }
-          else{
-          imageForcePull = result;
-          c1.imagePullPolicy = "Never";
-          }
-          console.log("all completed ", result, this.imagePullPolicy);
-
-        });
+ 
     //c1.imagePullPolicy = "Always";
-    console.log("image pull policy", c1.imagePullPolicy);
+  console.log("image pull policy", c1.imagePullPolicy);
   c1.securityContext = new kubernetes.V1SecurityContext();
 
   // Setup pod container resources (requests and limits).
@@ -1369,7 +1358,27 @@ function sleepwait(): Promise<jobs.Result> {
     console.log("after async call to look for containers&&***&*&(&(&(&&(&((*********");
     return (pod);
   }, 1000 );*/
+  f(podname, podname).then(result=>{
+          if (result)
+          {
+          imageForcePull = result;
+          c1.imagePullPolicy = "Always";
+          }
+          else{
+          imageForcePull = result;
+          c1.imagePullPolicy = "Never";
+          }
+          console.log("all completed ", result, this.imagePullPolicy);
+
+        });
+  function waitForIt(){
+        if (isPaused) {
+            console.log("waiting for imagePullPolicy to be selected ");
+            setTimeout(function(){waitForIt()},100);
+        } else {
   canProceed = false;
+};}
+  waitForIt();
   return pod;
 
 }

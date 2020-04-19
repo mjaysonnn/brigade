@@ -6,15 +6,17 @@ var idleContainer = null;
 var foundIdle = false;
 const arrivalTime = Date.now();
 var imagePullPolicy = true;
+var imagePolicy = false;
 var containerExist = false;
 let jobname = "test";
+var imageForcePull = "";
 let name = "test-12345";
 console.log(" = Job arrival time is ",arrivalTime, " ", jobname, " ", name);
 var toinsertType = jobname;
 var toinsertID =  name;
 var updated = false;
 var inserted = false;
-
+var canProceed =  true;
 async function f() {
  let client;
  try
@@ -79,6 +81,7 @@ if (count === 0) {
 	//this.runner.spec.containers[0].imagePullPolicy = "Never";
 	}
 	 client.close();
+	 canProceed = false;
 return imagePullPolicy
 
  //});
@@ -86,5 +89,25 @@ return imagePullPolicy
 }
 
 f().then(result=>{
+	imagePolicy = result;
 	console.log("all completed ", result);
 });
+function waitForIt(){
+        if (canProceed) {
+            console.log("waiting for new runnerpod to be created ");
+            setTimeout(function(){waitForIt()},100);
+        } else {
+if (imagePolicy)
+          {
+          imageForcePull = "Always";
+          }
+          else{
+          imageForcePull = "Never";
+          console.log("all completed ", imagePolicy, imageForcePull);
+
+          }
+      };}
+ waitForIt();
+ 
+
+
