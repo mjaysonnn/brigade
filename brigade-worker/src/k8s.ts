@@ -22,7 +22,19 @@ import * as byline_1 from "byline";
 // expiresInMSec is the number of milliseconds until pod expiration
 // After this point, the pod can be garbage collected (a feature not yet implemented)
 const expiresInMSec = 1000 * 60 * 60 * 24 * 30;
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://10.52.3.47:27017/mydb";
+const arrivalTime = Date.now();
+var containerExist = false;
+let jobname = "test";
+let name = "test-12345";
+//console.log(" = Job arrival time is ",arrivalTime, " ", jobname, " ", name);
+var toinsertType = jobname;
+var toinsertID =  name;
+var updated = false;
+var isPaused = true;
 
+var inserted = false;
 const defaultClient = kubernetes.Config.defaultClient();
 const retry = (fn, args, delay, times) => {
   // exponential back-off retry if status is in the 500s
@@ -88,7 +100,7 @@ const kc = getKubeConfig();
  * allowed to override (or ignore) 'options', though they should never modify
  * it.
  */
-const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
+const k8sApi = kc.makeApiClient(kubernetes.CoreV1Api);
 
 k8sApi.listNamespacedPod('default').then((res) => {
     console.log(res.body,"jashwant list pods*****");
@@ -937,6 +949,87 @@ function sidecarSpec(
   return spec;
 }
 
+ async function f(jobname, name): Promise<boolean> {
+ let client;
+ var idleContainer = null;
+var foundIdle = false;
+const arrivalTime = Date.now();
+var imagePullPolicy = true;
+var containerExist = false;
+console.log(" = Job arrival time is ",arrivalTime, " ", jobname, " ", name);
+var toinsertType = jobname;
+var toinsertID =  name;
+var updated = false;
+var inserted = false;
+ var toinsertType =  jobname;
+ var toinsertID =    name;
+ try
+ {
+ client = await MongoClient.connect(url);
+ console.log("Connected correctly to server");
+
+ //if (err) {console.log("job stats insert error " , err.stack);}
+ var dbo = client.db("mydb");
+ var obj = { arrivalTime: arrivalTime, ID: toinsertID, type: toinsertType };
+ await dbo.collection("job_stats").insertOne(obj);
+ //if (err) throw err;
+ console.log("1 job stats document inserted");
+ } catch (err) {
+ }
+let count = await dbo.collection("containers").count();
+console.log("container count is ", count);
+if (count === 0) {
+  var myobj = { createTime: arrivalTime, ID: toinsertID,  idle: "true"}
+  await dbo.collection("containers").insertOne(myobj);
+  console.log("1 container document inserted"); 
+  imagePullPolicy = true;
+  inserted = true;
+  }
+ else
+ {
+  var query = {idle: "true"};
+      var projection = {
+      "ID": 1
+      }
+      let container = await dbo.collection("containers").findOne(query,projection)
+      if (container != null){
+
+          idleContainer = container.ID;
+          var options = { "upsert": false };
+          console.log("Successfully found document ", idleContainer);
+          foundIdle = true;
+          let updtatedContainer = await dbo.collection("containers").findOneAndUpdate({idle:"true"}, {$set:{idle: "false", ID: toinsertID}})
+          imagePullPolicy = false;
+          console.log("1 container updated ", updtatedContainer.value.createTime, updtatedContainer.value.ID, updtatedContainer.value.idle, imagePullPolicy);
+          updated = true;
+      }
+      else{
+        console.log('No document matches the provided query.');
+        var myobj = { createTime: arrivalTime, ID: toinsertID,  idle: "false"}
+
+        await dbo.collection("containers").insertOne(myobj);
+      
+        console.log("inserting new container ")
+        imagePullPolicy = true;
+      }
+          //this.runner.spec.containers[0].imagePullPolicy = "Always";
+  }
+  if (imagePullPolicy)
+  {
+  console.log("imagePullPolicy is always ", imagePullPolicy);
+  //this.runner.spec.containers[0].imagePullPolicy = "Always";
+  }
+  else 
+  {
+  console.log("imagePullPolicy is Never ", imagePullPolicy);  
+  //this.runner.spec.containers[0].imagePullPolicy = "Never";
+  }
+   client.close();
+   isPaused = false;
+   
+return (imagePullPolicy);
+}
+
 function newRunnerPod(
   podname: string,
   brigadeImage: string,
@@ -955,7 +1048,7 @@ function newRunnerPod(
     component: "job"
   };
   pod.metadata.annotations = jobAnnotations;
-
+  console.log("********creating new runner pod");
   let c1 = new kubernetes.V1Container();
   c1.name = "brigaderun";
   c1.image = brigadeImage;
@@ -965,9 +1058,28 @@ function newRunnerPod(
   }
   c1.command = [jobShell, "/hook/main.sh"];
 
+  
   c1.imagePullPolicy = imageForcePull ? "Always" : "IfNotPresent";
-  c1.securityContext = new kubernetes.V1SecurityContext();
+  f(podname, podname).then(result=>{
+          if (result)
+          {
+          imageForcePull = result;
+          c1.imagePullPolicy = "Always";
+          }
+          else{
+          imageForcePull = result;
+          c1.imagePullPolicy = "Never";
+          }
+          console.log("all completed ", result, this.imagePullPolicy);
 
+        });
+  function waitForIt(){
+        if (isPaused) {
+            this.logger.log("waiting for imagePullPolicy to be selected ");
+            setTimeout(function(){waitForIt()},100);
+        } else {
+  c1.securityContext = new kubernetes.V1SecurityContext();
+};
   // Setup pod container resources (requests and limits).
   let resourceRequirements = new kubernetes.V1ResourceRequirements();
   if (resourceRequests) {
@@ -989,6 +1101,8 @@ function newRunnerPod(
   pod.spec.restartPolicy = "Never";
   pod.spec.serviceAccount = serviceAccount;
   pod.spec.serviceAccountName = serviceAccount;
+  console.log("runner pod imageForcePull ", c1.imagePullPolicy);
+}
   return pod;
 }
 

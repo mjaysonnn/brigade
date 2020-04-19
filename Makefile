@@ -51,7 +51,7 @@ HELM ?= helm
 # Binaries and Docker images we build and publish                              #
 ################################################################################
 
-IMAGES := brigade-api brigade-controller brigade-cr-gateway brigade-generic-gateway brigade-vacuum brig brigade-worker git-sidecar
+IMAGES := brigade-worker
 
 ifdef DOCKER_REGISTRY
 	DOCKER_REGISTRY := $(DOCKER_REGISTRY)/
