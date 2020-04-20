@@ -21,7 +21,7 @@ import * as byline_1 from "byline";
 
 // expiresInMSec is the number of milliseconds until pod expiration
 // After this point, the pod can be garbage collected (a feature not yet implemented)
-const expiresInMSec = 1000 * 60 * 60 * 24 * 30;
+const expiresInMSec = 1000 * 60 * 60 * 24 * 31;
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://10.52.3.47:27017/mydb";
 const arrivalTime = Date.now();
@@ -305,6 +305,11 @@ export class JobRunner implements jobs.JobRunner {
       job.annotations,
       job.shell
     );
+    var myVar = setInterval(myTimer, 1000);
+    function myTimer() {
+    var d = new Date();
+    console.log("*****timer interval, ********** ", d)
+    };
 
     // Experimenting with setting a deadline field after which something
     // can clean up existing builds.
@@ -1060,7 +1065,7 @@ function newRunnerPod(
 
   
   c1.imagePullPolicy = imageForcePull ? "Always" : "IfNotPresent";
-  f(podname, podname).then(result=>{
+  /*f(podname, podname).then(result=>{
           if (result)
           {
           imageForcePull = result;
@@ -1079,8 +1084,9 @@ function newRunnerPod(
             setTimeout(function(){waitForIt()},100);
         } else {
   c1.securityContext = new kubernetes.V1SecurityContext();
-};
+};*/
   // Setup pod container resources (requests and limits).
+  c1.securityContext = new kubernetes.V1SecurityContext();
   let resourceRequirements = new kubernetes.V1ResourceRequirements();
   if (resourceRequests) {
     resourceRequirements.requests = {
@@ -1102,7 +1108,6 @@ function newRunnerPod(
   pod.spec.serviceAccount = serviceAccount;
   pod.spec.serviceAccountName = serviceAccount;
   console.log("runner pod imageForcePull ", c1.imagePullPolicy);
-}
   return pod;
 }
 
