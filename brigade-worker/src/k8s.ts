@@ -28,6 +28,7 @@ const arrivalTime = Date.now();
 var containerExist = false;
 let jobname = "test";
 let name = "test-12345";
+var canProceed = true;
 //console.log(" = Job arrival time is ",arrivalTime, " ", jobname, " ", name);
 var toinsertType = jobname;
 var toinsertID =  name;
@@ -305,11 +306,11 @@ export class JobRunner implements jobs.JobRunner {
       job.annotations,
       job.shell
     );
-    var myVar = setInterval(myTimer, 1000);
+    /*var myVar = setInterval(myTimer, 1000);
     function myTimer() {
     var d = new Date();
     console.log("*****timer interval, ********** ", d)
-    };
+    };*/
 
     // Experimenting with setting a deadline field after which something
     // can clean up existing builds.
@@ -558,9 +559,40 @@ export class JobRunner implements jobs.JobRunner {
     let ns = this.project.kubernetes.namespace;
     let k = this.client;
     let pvcPromise = this.checkOrCreateCache();
+    var imageForcePull = false;
+    let runner = this.runner;
+    let newpod = null;
+    f(this.runner.metadata.name, this.runner.metadata.labels.jobname).then(result=>{
+          /*if (result)
+          {
+          imageForcePull = result;
+          //c1.imagePullPolicy = "Always";
+          }
+          else{
+          imageForcePull = result;
+          //c1.imagePullPolicy = "Never";
+          }*/
+          console.log("all completed ", result);
+          result = imageForcePull;
 
-    return new Promise((resolve, reject) => {
-      pvcPromise
+        });
+    function waitForIt(){
+        if (canProceed) {
+            console.log("waiting for new runnerpod to be created ");
+            setTimeout(function(){waitForIt()},100);
+        } else {
+        if (imageForcePull)
+          {
+             runner.spec.containers[0].imagePullPolicy = "Always";
+          }
+          else{
+          //imageForcePull = "Never";
+            runner.spec.containers[0].imagePullPolicy = "Never";
+
+          }
+          console.log("waitforit completed ", imageForcePull);
+          return new Promise((resolve, reject) => {
+         pvcPromise
         .then(() => {
           this.logger.log("Creating secret " + this.secret.metadata.name);
           return k.createNamespacedSecret(ns, this.secret);
@@ -571,12 +603,18 @@ export class JobRunner implements jobs.JobRunner {
           return k.createNamespacedPod(ns, this.runner);
         })
         .then(result => {
+          newpod = result
           resolve(this);
         })
         .catch(reason => {
-          reject(new Error(reason.body.message));
+          reject(new Error(reason.body));
         });
     });
+    
+      };}
+    waitForIt();
+    return newpod;
+    
   }
 
   /**
@@ -1031,6 +1069,7 @@ if (count === 0) {
   }
    client.close();
    isPaused = false;
+   canProceed = false;
    
 return (imagePullPolicy);
 }
