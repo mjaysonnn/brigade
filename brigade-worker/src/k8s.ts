@@ -542,7 +542,28 @@ export class JobRunner implements jobs.JobRunner {
    * Success (resolve) or Failure (reject)
    */
   public run(): Promise<jobs.Result> {
-    return this.start()
+    var imageForcePull = false;
+    let runner = this.runner;
+    let newpod = null;
+    return f(this.runner.metadata.name, this.runner.metadata.labels.jobname).then(result=>{
+          if (result)
+          {
+          imageForcePull = result;
+          this.runner.spec.containers[0].imagePullPolicy = "Always"
+          //c1.imagePullPolicy = "Always";
+          }
+          else{
+          imageForcePull = result;
+          this.runner.spec.containers[0].imagePullPolicy = "Never"
+          //c1.imagePullPolicy = "Never";
+          }
+          this.logger.log("all completed ", result);
+          //result = imageForcePull;
+
+        })
+        .then( () => {
+          return this.start()
+        })
       .then(r => r.wait())
       .then(r => {
         return this.logs();
@@ -550,6 +571,8 @@ export class JobRunner implements jobs.JobRunner {
       .then(response => {
         return new K8sResult(response);
       });
+    
+    
   }
 
   /** start begins a job, and returns once it is scheduled to run.*/
@@ -559,61 +582,26 @@ export class JobRunner implements jobs.JobRunner {
     let ns = this.project.kubernetes.namespace;
     let k = this.client;
     let pvcPromise = this.checkOrCreateCache();
-    var imageForcePull = false;
-    let runner = this.runner;
-    let newpod = null;
-    f(this.runner.metadata.name, this.runner.metadata.labels.jobname).then(result=>{
-          /*if (result)
-          {
-          imageForcePull = result;
-          //c1.imagePullPolicy = "Always";
-          }
-          else{
-          imageForcePull = result;
-          //c1.imagePullPolicy = "Never";
-          }*/
-          console.log("all completed ", result);
-          result = imageForcePull;
-
-        });
-    function waitForIt(){
-        if (canProceed) {
-            console.log("waiting for new runnerpod to be created ");
-            setTimeout(function(){waitForIt()},100);
-        } else {
-        if (imageForcePull)
-          {
-             runner.spec.containers[0].imagePullPolicy = "Always";
-          }
-          else{
-          //imageForcePull = "Never";
-            runner.spec.containers[0].imagePullPolicy = "Never";
-
-          }
-          console.log("waitforit completed ", imageForcePull);
-          return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
          pvcPromise
         .then(() => {
-          this.logger.log("Creating secret " + this.secret.metadata.name);
+          console.log("Creating secret " + this.secret.metadata.name);
           return k.createNamespacedSecret(ns, this.secret);
         })
         .then(result => {
-          this.logger.log("Creating pod " + this.runner.metadata.name);
+          console.log("Creating pod " + this.runner.metadata.name);
           // Once namespace creation has been accepted, we create the pod.
           return k.createNamespacedPod(ns, this.runner);
         })
         .then(result => {
-          newpod = result
+          //newpod = result
           resolve(this);
         })
         .catch(reason => {
           reject(new Error(reason.body));
         });
     });
-    
-      };}
-    waitForIt();
-    return newpod;
+    //return newpod;
     
   }
 
