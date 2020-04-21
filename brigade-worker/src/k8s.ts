@@ -104,7 +104,7 @@ const kc = getKubeConfig();
 const k8sApi = kc.makeApiClient(kubernetes.CoreV1Api);
 
 k8sApi.listNamespacedPod('default').then((res) => {
-    console.log(res.body,"jashwant list pods*****");
+    console.log("jashwant list pods*****");
 });
 export var options: KubernetesOptions = {
   serviceAccount: "brigade-worker",
@@ -735,9 +735,22 @@ export class JobRunner implements jobs.JobRunner {
         }
 
         let phase = this.pod.status.phase;
+        var  containerID = this.runner.metadata.name;
+        const currentTime = Date.now();
         if (phase == "Succeeded") {
           clearTimers();
           let result = new K8sResult(phase);
+          MongoClient.connect(url, function(err, db) {
+        if (err)  {console.log("updating containers  error " , err.stack);}
+        var dbo = db.db("mydb");
+        dbo.collection("containers").findOneAndUpdate({idle:"false", ID: containerID},{$set:{idle: "true", ID: containerID, lastUsedTime: currentTime }}, function(err, result) {
+            if (err) { console.log("findoneupdate idle true error ", err.stack);
+            throw err; }
+            if (result.value)
+            console.log("updated result is", result.value.idle, result.value.ID);
+            });
+            db.close();
+            });
           resolve(result);
         }
         // make sure Pod is running before we start following its logs
@@ -980,7 +993,7 @@ function sidecarSpec(
   return spec;
 }
 
- async function f(jobname, name): Promise<boolean> {
+ async function f(name, jobname): Promise<boolean> {
  let client;
  var idleContainer = null;
 var foundIdle = false;
@@ -1010,7 +1023,7 @@ var inserted = false;
 let count = await dbo.collection("containers").count();
 console.log("container count is ", count);
 if (count === 0) {
-  var myobj = { createTime: arrivalTime, ID: toinsertID,  idle: "true"}
+  var myobj = { lastUsedTime: arrivalTime, ID: toinsertID, type: toinsertType, idle: "false"}
   await dbo.collection("containers").insertOne(myobj);
   console.log("1 container document inserted"); 
   imagePullPolicy = true;
@@ -1018,7 +1031,7 @@ if (count === 0) {
   }
  else
  {
-  var query = {idle: "true"};
+  var query = {idle: "true", type:toinsertType};
       var projection = {
       "ID": 1
       }
@@ -1029,14 +1042,14 @@ if (count === 0) {
           var options = { "upsert": false };
           console.log("Successfully found document ", idleContainer);
           foundIdle = true;
-          let updtatedContainer = await dbo.collection("containers").findOneAndUpdate({idle:"true"}, {$set:{idle: "false", ID: toinsertID}})
+          let updtatedContainer = await dbo.collection("containers").findOneAndUpdate({idle:"true", type:toinsertType}, {$set:{idle: "false", ID: toinsertID}})
           imagePullPolicy = false;
-          console.log("1 container updated ", updtatedContainer.value.createTime, updtatedContainer.value.ID, updtatedContainer.value.idle, imagePullPolicy);
+          console.log("1 container updated ", updtatedContainer.value.lastUsedTime, updtatedContainer.value.ID, updtatedContainer.value.idle, imagePullPolicy);
           updated = true;
       }
       else{
         console.log('No document matches the provided query.');
-        var myobj = { createTime: arrivalTime, ID: toinsertID,  idle: "false"}
+        var myobj = { lastUsedTime: arrivalTime, ID: toinsertID, type: toinsertType, idle: "false"}
 
         await dbo.collection("containers").insertOne(myobj);
       

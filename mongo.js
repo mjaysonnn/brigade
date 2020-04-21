@@ -51,8 +51,10 @@ switch (myArgs[0]) {
 				var dbo = db.db("mydb");
 				dbo.collection("job_stats").find().toArray(function(err, result) {
 						if (err) throw err;
-						console.log(result);
+						result.forEach( element =>{
+						console.log(element.ID);
 						});
+				});
 				db.close();
 				});
 		MongoClient.connect(url, function(err, db) {
@@ -114,9 +116,8 @@ switch (myArgs[0]) {
 		MongoClient.connect(url, function(err, db) {
 				if (err)  {console.log("deleting containers  error " , err.stack);}
 				var dbo = db.db("mydb");
-				var myquery = { ID: idleContainer };
-				var newvalues = { $set: {idle: "False" }};
 				dbo.collection("containers").remove( { } )
+				dbo.collection("job_stats").remove( { } )
 				console.log("deleted all containers ");
 				db.close(); 
 				});
