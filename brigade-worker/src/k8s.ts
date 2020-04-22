@@ -24,7 +24,7 @@ import * as byline_1 from "byline";
 const expiresInMSec = 1000 * 60 * 60 * 24 * 31;
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://10.52.3.47:27017/mydb";
-const arrivalTime = Date.now();
+const arrivalTime = Date.now()/1000;
 var containerExist = false;
 let jobname = "test";
 let name = "test-12345";
@@ -560,9 +560,9 @@ export class JobRunner implements jobs.JobRunner {
           this.runner.spec.containers[0].imagePullPolicy = "Never"
           //c1.imagePullPolicy = "Never";
           }
-          var waittime = (runtime * (queuePosition - 1) * 0.001);
+          var waittime = (runtime * (queuePosition) * 0.001);
           this.job.tasks.push(`sleep ${waittime}`)
-          this.logger.log("all completed ", result, runtime , queuePosition, waittime, this.job.tasks);
+          this.logger.log("all completed ", result, queuePosition, this.job.tasks);
           //result = imageForcePull;
 
         })
@@ -594,7 +594,7 @@ export class JobRunner implements jobs.JobRunner {
           return k.createNamespacedSecret(ns, this.secret);
         })
         .then(result => {
-          console.log("Creating pod " + this.runner.metadata.name + " ", batch_size, " ", runtime, this.job.tasks);
+          console.log("Creating pod " + this.runner.metadata.name + " ", queuePosition, " ", runtime, this.job.tasks);
           // Once namespace creation has been accepted, we create the pod.
           return k.createNamespacedPod(ns, this.runner);
         })
@@ -744,7 +744,7 @@ export class JobRunner implements jobs.JobRunner {
         var  containerID = this.runner.metadata.name;
         var batchsize = batch_size;
         var newbatchsize = 8;
-        const currentTime = Date.now();
+        const currentTime = Date.now()/1000;
         if (phase == "Succeeded") {
           clearTimers();
         let result = new K8sResult(phase);
@@ -1049,7 +1049,7 @@ function sidecarSpec(
  let client;
  var idleContainer = null;
 var foundIdle = false;
-const arrivalTime = Date.now();
+const arrivalTime = Date.now()/1000;
 var imagePullPolicy = true;
 var containerExist = false;
 console.log(" = Job arrival time is ",arrivalTime, " ", jobname, " ", name);
@@ -1077,7 +1077,7 @@ console.log("container count is ", count);
 if (count === 0) {
   var myobj = { lastUsedTime: arrivalTime, ID: toinsertID, type: toinsertType, idle: "true", batchsize: batchsize}
   await dbo.collection("containers").insertOne(myobj);
-  queuePosition = batch_size - batchsize + 1 
+  queuePosition = batch_size - batchsize;
   console.log("1 container document inserted woth job queuePosition and batchsize ", queuePosition, batchsize); 
   imagePullPolicy = true;
   inserted = true;
@@ -1090,7 +1090,7 @@ if (count === 0) {
       if (container != null && container.batchsize >= 2){
           let updatedBatchSize = container.batchsize - 1;
           idleContainer = container.ID;
-          queuePosition = batch_size - updatedBatchSize + 1 ; 
+          queuePosition = batch_size - updatedBatchSize; 
           var options = { "upsert": false };
           console.log("Successfully found document ", idleContainer);
           foundIdle = true;
@@ -1142,7 +1142,7 @@ async function cleanup(name): Promise<boolean> {
         var  containerID = name;
         var batchsize = batch_size;
         var newbatchsize = 0;
-        const currentTime = Date.now();
+        const currentTime = Date.now()/1000;
         var found = false;
         let client = await MongoClient.connect(url);
         console.log("Connected correctly to server");
@@ -1161,7 +1161,7 @@ async function cleanup(name): Promise<boolean> {
             found = true;
             }
         //}).then(()=>{
-            if ( newbatchsize != 1 && newbatchsize <= batch_size){
+            if (newbatchsize <= batch_size){
             console.log("updating the batchsize");
             let updated = await dbo.collection("containers").findOneAndUpdate({ID: containerType.container},{$set:{idle: "true", lastUsedTime: currentTime, batchsize:newbatchsize }});
             if (updated.value ){
