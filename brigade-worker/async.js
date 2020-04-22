@@ -44,10 +44,7 @@ if (count === 0) {
  else
  {
  	var query = {idle: "true"};
-			var projection = {
-			"ID": 1
-			}
-			let container = await dbo.collection("containers").findOne(query,projection)
+			let container = await dbo.collection("containers").findOne(query)
 			if (container != null){
 
 					idleContainer = container.ID;

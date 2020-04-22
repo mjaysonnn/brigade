@@ -34,7 +34,9 @@ var toinsertType = jobname;
 var toinsertID =  name;
 var updated = false;
 var isPaused = true;
-
+var batch_size = 0;
+var runtime = 0;
+var queuePosition = 0;
 var inserted = false;
 const defaultClient = kubernetes.Config.defaultClient();
 const retry = (fn, args, delay, times) => {
@@ -267,7 +269,6 @@ export class JobRunner implements jobs.JobRunner {
   pod: kubernetes.V1Pod;
   cancel: boolean;
   reconnect: boolean;
-
   constructor() { }
 
   /**
@@ -294,7 +295,7 @@ export class JobRunner implements jobs.JobRunner {
     let commit = e.revision.commit || "master";
     let secName = this.name;
     let runnerName = this.name;
-
+    
     this.secret = newSecret(secName);
     this.runner = newRunnerPod(
       runnerName,
@@ -311,11 +312,13 @@ export class JobRunner implements jobs.JobRunner {
     var d = new Date();
     console.log("*****timer interval, ********** ", d)
     };*/
-
     // Experimenting with setting a deadline field after which something
     // can clean up existing builds.
     let expiresAt = Date.now() + expiresInMSec;
-
+    var res = this.job.args.toString().split(",");
+    console.log(res, res[0], res[1]);
+    batch_size = parseInt(res[1]);
+    runtime = parseInt(res[0]); 
     this.runner.metadata.labels.jobname = job.name;
     this.runner.metadata.labels.project = project.id;
     this.runner.metadata.labels.worker = e.workerID;
@@ -545,7 +548,7 @@ export class JobRunner implements jobs.JobRunner {
     var imageForcePull = false;
     let runner = this.runner;
     let newpod = null;
-    return f(this.runner.metadata.name, this.runner.metadata.labels.jobname).then(result=>{
+    return f(this.runner.metadata.name, this.runner.metadata.labels.jobname, batch_size).then(result=>{
           if (result)
           {
           imageForcePull = result;
@@ -557,7 +560,9 @@ export class JobRunner implements jobs.JobRunner {
           this.runner.spec.containers[0].imagePullPolicy = "Never"
           //c1.imagePullPolicy = "Never";
           }
-          this.logger.log("all completed ", result);
+          var waittime = (runtime * (queuePosition - 1) * 0.001);
+          this.job.tasks.push(`sleep ${waittime}`)
+          this.logger.log("all completed ", result, runtime , queuePosition, waittime, this.job.tasks);
           //result = imageForcePull;
 
         })
@@ -589,7 +594,7 @@ export class JobRunner implements jobs.JobRunner {
           return k.createNamespacedSecret(ns, this.secret);
         })
         .then(result => {
-          console.log("Creating pod " + this.runner.metadata.name);
+          console.log("Creating pod " + this.runner.metadata.name + " ", batch_size, " ", runtime, this.job.tasks);
           // Once namespace creation has been accepted, we create the pod.
           return k.createNamespacedPod(ns, this.runner);
         })
@@ -598,6 +603,7 @@ export class JobRunner implements jobs.JobRunner {
           resolve(this);
         })
         .catch(reason => {
+          console.log("caught exception", reason.body.message);
           reject(new Error(reason.body));
         });
     });
@@ -736,28 +742,74 @@ export class JobRunner implements jobs.JobRunner {
 
         let phase = this.pod.status.phase;
         var  containerID = this.runner.metadata.name;
+        var batchsize = batch_size;
+        var newbatchsize = 8;
         const currentTime = Date.now();
         if (phase == "Succeeded") {
           clearTimers();
-          let result = new K8sResult(phase);
-          MongoClient.connect(url, function(err, db) {
+        let result = new K8sResult(phase);
+        
+        cleanup(this.runner.metadata.name).then(result=>{
+          if (result)
+          {
+          
+          //c1.imagePullPolicy = "Always";
+          }
+          else{
+          
+          //c1.imagePullPolicy = "Never";
+          }
+          this.logger.log("all completed ", result);
+          //result = imageForcePull;
+
+        }).then(() => {
+
+        //let cleanup = new Promise((resolve, reject) => {
+        /*MongoClient.connect(url, function(err, db) {
         if (err)  {console.log("updating containers  error " , err.stack);}
         var dbo = db.db("mydb");
-        dbo.collection("containers").findOneAndUpdate({idle:"false", ID: containerID},{$set:{idle: "true", ID: containerID, lastUsedTime: currentTime }}, function(err, result) {
+        var query = {ID: containerID};
+        dbo.collection("containers").findOne(query, function(err, result) {
+        if (err) { console.log("findone idle true error ", err.stack);
+            throw err; }
+            if (result)
+            {
+             console.log(result);
+            newbatchsize = result.batchsize + 1;
+            console.log("queue length is ", result.ID, newbatchsize, result.batchsize, batch_size);
+            }
+          });
+            db.close();
+          });
+        //}).then(()=>{
+          if ( newbatchsize != 1 && newbatchsize <= batch_size){
+            console.log("updating the batchsize");
+            MongoClient.connect(url, function(err, db) {
+            var dbo = db.db("mydb");
+            dbo.collection("containers").findOneAndUpdate({ID: containerID},{$set:{idle: "true", ID: containerID, lastUsedTime: currentTime, batchsize:newbatchsize }}, 
+            function(err, result) {
             if (err) { console.log("findoneupdate idle true error ", err.stack);
             throw err; }
             if (result.value)
-            console.log("updated result is", result.value.idle, result.value.ID);
+            console.log("updated result is", result.value.idle, result.value.ID, result.value.batchsize);
+            else
+              console.log("no container to update ", containerID);
             });
             db.close();
-            });
+            })
+
+          }
+        //})*/
+
           resolve(result);
+        });
         }
         // make sure Pod is running before we start following its logs
         else if (phase == "Running") {
           // do that only if we haven't hooked up the follow request before
           if (followLogsRequest == null && this.job.streamLogs) {
             followLogsRequest = followLogs(this.pod.metadata.namespace, this.pod.metadata.name);
+
           }
         } else if (phase == "Failed") {
           clearTimers();
@@ -993,7 +1045,7 @@ function sidecarSpec(
   return spec;
 }
 
- async function f(name, jobname): Promise<boolean> {
+ async function f(name, jobname, batchsize): Promise<boolean> {
  let client;
  var idleContainer = null;
 var foundIdle = false;
@@ -1014,42 +1066,52 @@ var inserted = false;
 
  //if (err) {console.log("job stats insert error " , err.stack);}
  var dbo = client.db("mydb");
- var obj = { arrivalTime: arrivalTime, ID: toinsertID, type: toinsertType };
- await dbo.collection("job_stats").insertOne(obj);
+ var obj = { arrivalTime: arrivalTime, ID: toinsertID, type: toinsertType, container: toinsertID };
+ var newjob = await dbo.collection("job_stats").insertOne(obj);
  //if (err) throw err;
- console.log("1 job stats document inserted");
+ console.log("1 job stats document inserted" );
  } catch (err) {
  }
 let count = await dbo.collection("containers").count();
 console.log("container count is ", count);
 if (count === 0) {
-  var myobj = { lastUsedTime: arrivalTime, ID: toinsertID, type: toinsertType, idle: "false"}
+  var myobj = { lastUsedTime: arrivalTime, ID: toinsertID, type: toinsertType, idle: "true", batchsize: batchsize}
   await dbo.collection("containers").insertOne(myobj);
-  console.log("1 container document inserted"); 
+  queuePosition = batch_size - batchsize + 1 
+  console.log("1 container document inserted woth job queuePosition and batchsize ", queuePosition, batchsize); 
   imagePullPolicy = true;
   inserted = true;
   }
  else
  {
   var query = {idle: "true", type:toinsertType};
-      var projection = {
-      "ID": 1
-      }
-      let container = await dbo.collection("containers").findOne(query,projection)
-      if (container != null){
-
+      
+      let container = await dbo.collection("containers").findOne(query)
+      if (container != null && container.batchsize >= 2){
+          let updatedBatchSize = container.batchsize - 1;
           idleContainer = container.ID;
+          queuePosition = batch_size - updatedBatchSize + 1 ; 
           var options = { "upsert": false };
           console.log("Successfully found document ", idleContainer);
           foundIdle = true;
-          let updtatedContainer = await dbo.collection("containers").findOneAndUpdate({idle:"true", type:toinsertType}, {$set:{idle: "false", ID: toinsertID}})
+          if (updatedBatchSize == 1){
+            var updatedContainer = await dbo.collection("containers").findOneAndUpdate({idle:"true", type:toinsertType}, {$set:{idle: "false" , batchsize: updatedBatchSize}})
+            var updatedJob = await dbo.collection("job_stats").findOneAndUpdate({ID: toinsertID}, {$set:{container: updatedContainer.value.ID}});
+
+          }
+            
+          else {
+            var updatedContainer = await dbo.collection("containers").findOneAndUpdate({idle:"true", type:toinsertType}, {$set:{idle: "true" , batchsize: updatedBatchSize}})
+            var updatedJob = await dbo.collection("job_stats").findOneAndUpdate({ID: toinsertID}, {$set:{container: updatedContainer.value.ID}});
+
+          }
           imagePullPolicy = false;
-          console.log("1 container updated ", updtatedContainer.value.lastUsedTime, updtatedContainer.value.ID, updtatedContainer.value.idle, imagePullPolicy);
+          console.log("1 container updated ", updatedContainer.value.lastUsedTime, updatedContainer.value.ID, updatedContainer.value.idle, updatedContainer.value.batchsize, updatedBatchSize, imagePullPolicy);
           updated = true;
       }
       else{
         console.log('No document matches the provided query.');
-        var myobj = { lastUsedTime: arrivalTime, ID: toinsertID, type: toinsertType, idle: "false"}
+        var myobj = { lastUsedTime: arrivalTime, ID: toinsertID, type: toinsertType, idle: "true", batchsize: batchsize}
 
         await dbo.collection("containers").insertOne(myobj);
       
@@ -1074,6 +1136,45 @@ if (count === 0) {
    
 return (imagePullPolicy);
 }
+
+async function cleanup(name): Promise<boolean> {
+
+        var  containerID = name;
+        var batchsize = batch_size;
+        var newbatchsize = 0;
+        const currentTime = Date.now();
+        var found = false;
+        let client = await MongoClient.connect(url);
+        console.log("Connected correctly to server");
+
+ //if (err) {console.log("job stats insert error " , err.stack);}
+        var dbo = client.db("mydb");
+        var containerType = await dbo.collection("job_stats").findOne({ID: containerID});
+        var query = {ID: containerType.container};
+        let result = await dbo.collection("containers").findOne(query);
+
+            if (result)
+            {
+             console.log(result);
+            newbatchsize = result.batchsize + 1;
+            console.log("queue length is ", result.type, newbatchsize, result.batchsize, batch_size);
+            found = true;
+            }
+        //}).then(()=>{
+            if ( newbatchsize != 1 && newbatchsize <= batch_size){
+            console.log("updating the batchsize");
+            let updated = await dbo.collection("containers").findOneAndUpdate({ID: containerType.container},{$set:{idle: "true", lastUsedTime: currentTime, batchsize:newbatchsize }});
+            if (updated.value ){
+            console.log("updated result is", updated.value.idle, updated.value.ID, updated.value.batchsize);
+            found = true;
+            }
+            else
+              console.log("no container to update ", containerID);
+          }
+          client.close();
+          return found;
+  }
+
 
 function newRunnerPod(
   podname: string,

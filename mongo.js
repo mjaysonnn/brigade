@@ -123,6 +123,43 @@ switch (myArgs[0]) {
 				});
 		break;
 
+	case 'update-batch':
+	var containerID = "asr-01e6h53gkt455zzw01a8302380";
+	var batch_size = 8;
+	var newbatchsize = 0;
+	var currentTime = Date.now();
+	MongoClient.connect(url, function(err, db) {
+        if (err)  {console.log("updating containers  error " , err.stack);}
+        var dbo = db.db("mydb");
+        var query = {ID: containerID};
+        dbo.collection("containers").findOne(query, (err, result) => {
+        if (err) { console.log("findone idle true error ", err.stack);
+            throw err; }
+            if (result)
+            {
+             console.log(result);
+            newbatchsize = result.batchsize + 1;
+            console.log("queue length is ", result.ID, newbatchsize, result.batchsize, batch_size);
+            }
+          }).then(() => {
+        //}).then(()=>{
+          if ( newbatchsize != 1 && newbatchsize <= batch_size){
+            console.log("updating the batchsize");
+            var dbo = db.db("mydb");
+            dbo.collection("containers").findOneAndUpdate({ID: containerID},{$set:{idle: "true", ID: containerID, lastUsedTime: currentTime, batchsize:newbatchsize }}, 
+            function(err, result) {
+            if (err) { console.log("findoneupdate idle true error ", err.stack);
+            throw err; }
+            if (result.value)
+            console.log("updated result is", result.value.idle, result.value.ID, result.value.batchsize);
+            else
+              console.log("no container to update ", containerID);
+            });
+            db.close();
+	}
+	});  
+	})         	
+	break;
 
 
 	default:
