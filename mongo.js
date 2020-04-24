@@ -7,21 +7,25 @@ console.log('myArgs: ', myArgs);
 MongoClient.connect(url, function(err, db) {
 		if (err) throw err;
 		console.log("Database created!");
+		var dbo = db.db("mydb");
+		dbo.setProfilingLevel('all', function(err, db) {
+                                if (err) { console.log(err.message,"******");throw err;}
+		})
 		db.close();
 		});
 
 switch (myArgs[0]) {
-	case 'test':
-		console.log(myArgs[0], 'test');
+	case 'profile':
+		console.log(myArgs[0], 'profile');
 		MongoClient.connect(url, function(err, db) {
 				if (err) throw err;
 				var dbo = db.db("mydb");
-				dbo.createCollection("customers", function(err, res) {
-						if (err) throw err;
-						console.log("Collection created!");
-						db.close();
-						});
-				});
+				dbo.collections("containers").profilingInfo(function(err, infos) {
+				  console.log(infos);
+				})
+				db.close();
+			});
+		break;
 		MongoClient.connect(url, function(err, db) {
 				if (err) throw err;
 				var dbo = db.db("mydb");
@@ -43,11 +47,29 @@ switch (myArgs[0]) {
 						});
 				});
 		break;
+		case 'count':
+		console.log(myArgs[0], 'find count of all jobs');
+		MongoClient.connect(url, function(err, db) {
+				if (err) { console.log("err.stack" , err.stack) ; throw err;}
+				var dbo = db.db("mydb");
+				dbo.collection("containers").count()
+				.then( result => {
+					console.log("num containers is ", result);
+				})
+				dbo.collection("job_stats").count()
+				.then( result => {
+					console.log("num jobs is ", result);
+				})
+	
+						
+				db.close();
+				});
+		break;
 
 	case 'find':
 		console.log(myArgs[0], 'findall in job and container');
-		MongoClient.connect(url, function(err, db) {
-				if (err) throw err;
+		/*MongoClient.connect(url, function(err, db) {
+				if (err) { console.log("err.stack" , err.stack) ; throw err;}
 				var dbo = db.db("mydb");
 				dbo.collection("job_stats").find().toArray(function(err, result) {
 						if (err) throw err;
@@ -56,9 +78,9 @@ switch (myArgs[0]) {
 						});
 				});
 				db.close();
-				});
+				});*/
 		MongoClient.connect(url, function(err, db) {
-				if (err) throw err;
+				if (err){ console.log("err.stack" , err.stack);throw err;}
 				var dbo = db.db("mydb");
 				dbo.collection("containers").find().toArray(function(err, result) {
 						if (err) throw err;
@@ -81,7 +103,7 @@ switch (myArgs[0]) {
 				}
 				dbo.collection("containers").findOne(query,projection).then((result) => {
 						if (result) {
-						console.log("Successfully found document ", result.ID, " ", result.createTime);
+						console.log("Successfully found document ", result.ID, " ", result.lastUsedTime);
 						idleContainer = result.ID;
 						idleCreatetime = result.createTime;
 						} else {
