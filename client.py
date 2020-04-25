@@ -19,8 +19,8 @@ def main():
         print("request ",i," submitted at time ",time.time())
        # cmd = "aws lambda invoke --invocation-type RequestResponse --function-name %s --region us-east-1 --payload \'{\"url\": \"https://s3.amazonaws.com/mxnet-tests/images/dog3.jpg\"}\' output_file "%(sys.argv[3])
         #cmd = "https://s3.amazonaws.com/mxnet-tests/images/dog3.jpg"
-        cmd="brig exec deis/empty-testbed -f asyncjob.js > job-c1-%s.log"%(i)
-	#print cmd
+        cmd="brig exec deis/empty-testbed -f %s > job-c1-%s.log"%(sys.argv[3],i)
+	print cmd
         executor.submit(client, str(cmd))
     print("batch end time ", i ," ",time.time(),cmd)
     executor.shutdown()

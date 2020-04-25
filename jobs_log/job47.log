@@ -1,94 +1,96 @@
-Event created. Waiting for worker pod named "brigade-worker-01e6j2gchbvg6mj2v0vbqpr579".
-Build: 01e6j2gchbvg6mj2v0vbqpr579, Worker: brigade-worker-01e6j2gchbvg6mj2v0vbqpr579
+Event created. Waiting for worker pod named "brigade-worker-01e6kzatrxs2a7yz7s946frymz".
+Build: 01e6kzatrxs2a7yz7s946frymz, Worker: brigade-worker-01e6kzatrxs2a7yz7s946frymz
 prestart: no dependencies file found
 [brigade] brigade-worker version: 1.2.1
-[brigade:k8s] Creating PVC named brigade-worker-01e6j2gchbvg6mj2v0vbqpr579
-[brigade:k8s] Jashwan message ***** Creating PVC named brigade-worker-01e6j2gchbvg6mj2v0vbqpr579
+[brigade:k8s] Creating PVC named brigade-worker-01e6kzatrxs2a7yz7s946frymz
+[brigade:k8s] Jashwan message ***** Creating PVC named brigade-worker-01e6kzatrxs2a7yz7s946frymz
 ********creating new runner pod
 runner pod imageForcePull  IfNotPresent
 [ '45', ' 8' ] '45' ' 8'
- = Job arrival time is  1587597035.496   asr   asr-01e6j2gchbvg6mj2v0vbqpr579
-Connected correctly to server
+ = Job arrival time is  1587660823.989   asr   asr-01e6kzatrxs2a7yz7s946frymz
 jashwant list pods*****
+Connected correctly to server
 1 job stats document inserted
-container count is  5
-Successfully found document  asr-01e6j28ds7vk66856heppkzf0k
-1 container updated  1587597033.582 asr-01e6j28ds7vk66856heppkzf0k true 5 4 false
+container count is  3
+Successfully found document  asr-01e6kz49v2tdgtnj81rb3jfyky
+1 container updated  1587660819.761 asr-01e6kz49v2tdgtnj81rb3jfyky true 7 6 false
 imagePullPolicy is Never  false
-[brigade:k8s] all completed  false 4 [ 'echo hello', 'sleep 0.045', 'sleep 0.18' ]
-Creating secret asr-01e6j2gchbvg6mj2v0vbqpr579
-Creating pod asr-01e6j2gchbvg6mj2v0vbqpr579  4   45 [ 'echo hello', 'sleep 0.045', 'sleep 0.18' ]
+[brigade:k8s] all completed  false 2 [ 'echo hello', 'sleep 0.045', 'sleep 0.09' ]
+Creating secret asr-01e6kzatrxs2a7yz7s946frymz
+Creating pod asr-01e6kzatrxs2a7yz7s946frymz  2   45 [ 'echo hello', 'sleep 0.045', 'sleep 0.09' ]
 [brigade:k8s] Timeout set at 900000 milliseconds
 [brigade:k8s] Pod not yet scheduled
-[brigade:k8s] default/asr-01e6j2gchbvg6mj2v0vbqpr579 phase Pending
-.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/asr-01e6j2gchbvg6mj2v0vbqpr579 phase Succeeded
+[brigade:k8s] default/asr-01e6kzatrxs2a7yz7s946frymz phase Pending
+.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/asr-01e6kzatrxs2a7yz7s946frymz phase Succeeded
 done         
 Connected correctly to server
-{ _id: 5ea0cde7c86cd600204666fd,
-  lastUsedTime: 1587597038.902,
-  ID: 'asr-01e6j28ds7vk66856heppkzf0k',
+{ _id: 5ea1c738423e1c001fcc3a3b,
+  lastUsedTime: 1587660829.204,
+  ID: 'asr-01e6kz49v2tdgtnj81rb3jfyky',
   type: 'asr',
   idle: 'true',
-  batchsize: 8 }
-queue length is  asr 9 8 8
+  batchsize: 7 }
+queue length is  asr 8 7 8
+updating the batchsize
+updated result is true asr-01e6kz49v2tdgtnj81rb3jfyky 7
 [brigade:k8s] all completed  true
 ********creating new runner pod
 runner pod imageForcePull  IfNotPresent
 [ '10', ' 8' ] '10' ' 8'
- = Job arrival time is  1587597045.586   nlp   nlp-01e6j2gchbvg6mj2v0vbqpr579
+ = Job arrival time is  1587660834.125   nlp   nlp-01e6kzatrxs2a7yz7s946frymz
 Connected correctly to server
 1 job stats document inserted
-container count is  5
-Successfully found document  nlp-01e6j28ds7vk66856heppkzf0k
-1 container updated  1587597045.482 nlp-01e6j28ds7vk66856heppkzf0k true 2 1 false
+container count is  3
+Successfully found document  nlp-01e6kz49wcapw4pc70yrh84557
+1 container updated  1587660833.252 nlp-01e6kz49wcapw4pc70yrh84557 true 7 6 false
 imagePullPolicy is Never  false
-[brigade:k8s] all completed  false 7 [ 'echo goodbye', 'sleep 0.01', 'sleep 0.07' ]
-Creating secret nlp-01e6j2gchbvg6mj2v0vbqpr579
-Creating pod nlp-01e6j2gchbvg6mj2v0vbqpr579  7   10 [ 'echo goodbye', 'sleep 0.01', 'sleep 0.07' ]
+[brigade:k8s] all completed  false 2 [ 'echo goodbye', 'sleep 0.01', 'sleep 0.02' ]
+Creating secret nlp-01e6kzatrxs2a7yz7s946frymz
+Creating pod nlp-01e6kzatrxs2a7yz7s946frymz  2   10 [ 'echo goodbye', 'sleep 0.01', 'sleep 0.02' ]
 [brigade:k8s] Timeout set at 900000 milliseconds
 [brigade:k8s] Pod not yet scheduled
-[brigade:k8s] default/nlp-01e6j2gchbvg6mj2v0vbqpr579 phase Pending
-.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/nlp-01e6j2gchbvg6mj2v0vbqpr579 phase Succeeded
+[brigade:k8s] default/nlp-01e6kzatrxs2a7yz7s946frymz phase Pending
+.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending[brigade:k8s] default/nlp-01e6kzatrxs2a7yz7s946frymz phase Succeeded
 done         
 Connected correctly to server
-{ _id: 5ea0cdf1c86cd600204666ff,
-  lastUsedTime: 1587597056.949,
-  ID: 'nlp-01e6j28ds7vk66856heppkzf0k',
+{ _id: 5ea1c73f4da321001f7af64a,
+  lastUsedTime: 1587660821.426,
+  ID: 'nlp-01e6kz49wcapw4pc70yrh84557',
   type: 'nlp',
   idle: 'true',
-  batchsize: 7 }
-queue length is  nlp 8 7 8
+  batchsize: 6 }
+queue length is  nlp 7 6 8
 updating the batchsize
-updated result is true nlp-01e6j28ds7vk66856heppkzf0k 7
+updated result is true nlp-01e6kz49wcapw4pc70yrh84557 6
 [brigade:k8s] all completed  true
 ********creating new runner pod
 runner pod imageForcePull  IfNotPresent
 [ '56', ' 8' ] '56' ' 8'
- = Job arrival time is  1587597059.621   qa   qa-01e6j2gchbvg6mj2v0vbqpr579
+ = Job arrival time is  1587660850.212   qa   qa-01e6kzatrxs2a7yz7s946frymz
 Connected correctly to server
 1 job stats document inserted
-container count is  5
-Successfully found document  qa-01e6j28djy6t1wsrdx0rbbqh7e
-1 container updated  1587597058.026 qa-01e6j28djy6t1wsrdx0rbbqh7e true 5 4 false
+container count is  3
+Successfully found document  qa-01e6kz49wszhtcc864vjxnzf8q
+1 container updated  1587660849.314 qa-01e6kz49wszhtcc864vjxnzf8q true 8 7 false
 imagePullPolicy is Never  false
-[brigade:k8s] all completed  false 4 [ 'echo hello again', 'sleep 0.056', 'sleep 0.224' ]
-Creating secret qa-01e6j2gchbvg6mj2v0vbqpr579
-Creating pod qa-01e6j2gchbvg6mj2v0vbqpr579  4   56 [ 'echo hello again', 'sleep 0.056', 'sleep 0.224' ]
+[brigade:k8s] all completed  false 1 [ 'echo hello again', 'sleep 0.056', 'sleep 0.056' ]
+Creating secret qa-01e6kzatrxs2a7yz7s946frymz
+Creating pod qa-01e6kzatrxs2a7yz7s946frymz  1   56 [ 'echo hello again', 'sleep 0.056', 'sleep 0.056' ]
 [brigade:k8s] Timeout set at 900000 milliseconds
 [brigade:k8s] Pod not yet scheduled
-[brigade:k8s] default/qa-01e6j2gchbvg6mj2v0vbqpr579 phase Pending
-.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/qa-01e6j2gchbvg6mj2v0vbqpr579 phase Succeeded
+[brigade:k8s] default/qa-01e6kzatrxs2a7yz7s946frymz phase Pending
+.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/qa-01e6kzatrxs2a7yz7s946frymz phase Succeeded
 done         
 Connected correctly to server
-{ _id: 5ea0cdf9367bf3001f9a64c4,
-  lastUsedTime: 1587597072.981,
-  ID: 'qa-01e6j28djy6t1wsrdx0rbbqh7e',
+{ _id: 5ea1c74acc29ec001fc782bd,
+  lastUsedTime: 1587660849.314,
+  ID: 'qa-01e6kz49wszhtcc864vjxnzf8q',
   type: 'qa',
   idle: 'true',
-  batchsize: 7 }
-queue length is  qa 8 7 8
+  batchsize: 6 }
+queue length is  qa 7 6 8
 updating the batchsize
-updated result is true qa-01e6j28djy6t1wsrdx0rbbqh7e 7
+updated result is true qa-01e6kz49wszhtcc864vjxnzf8q 6
 [brigade:k8s] all completed  true
 done
 [brigade:app] after: default event handler fired

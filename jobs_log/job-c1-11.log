@@ -1,0 +1,153 @@
+Event created. Waiting for worker pod named "brigade-worker-01e6q8z53st6q5m3c7azngcta5".
+Build: 01e6q8yfz4e332hvdjcns1sz7z, Worker: brigade-worker-01e6q8yfz4e332hvdjcns1sz7z
+prestart: no dependencies file found
+[brigade] brigade-worker version: 1.2.1
+[brigade:k8s] Creating PVC named brigade-worker-01e6q8yfz4e332hvdjcns1sz7z
+[brigade:k8s] Jashwan message ***** Creating PVC named brigade-worker-01e6q8yfz4e332hvdjcns1sz7z
+********creating new runner pod
+runner pod imageForcePull  IfNotPresent
+[ '45', ' 2' ] '45' ' 2'
+ = Job arrival time is  1587771648.352   asr-b   asr-b-01e6q8yfz4e332hvdjcns1sz7z
+Connected correctly to server
+1 job stats document inserted
+container count is  44
+No document matches the provided query.
+inserting new container 
+imagePullPolicy is always  true
+[brigade:k8s] all completed  true 0 [ 'echo hello', 'sleep 0.045', 'sleep 0' ]
+Creating secret asr-b-01e6q8yfz4e332hvdjcns1sz7z
+Creating pod asr-b-01e6q8yfz4e332hvdjcns1sz7z  0   45 [ 'echo hello', 'sleep 0.045', 'sleep 0' ]
+[brigade:k8s] Timeout set at 900000 milliseconds
+jashwant list pods*****
+[brigade:k8s] Pod not yet scheduled
+[brigade:k8s] default/asr-b-01e6q8yfz4e332hvdjcns1sz7z phase Pending
+.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending[brigade:k8s] default/asr-b-01e6q8yfz4e332hvdjcns1sz7z phase Succeeded
+done         
+Connected correctly to server
+{ _id: 5ea379001ecbd9001f73ef43,
+  lastUsedTime: 1587771648.352,
+  ID: 'asr-b-01e6q8yfz4e332hvdjcns1sz7z',
+  type: 'asr-b',
+  idle: 'false',
+  batchsize: 1 }
+queue length is  asr-b 2 1 2
+updating the batchsize
+updated result is false asr-b-01e6q8yfz4e332hvdjcns1sz7z 1
+[brigade:k8s] all completed  true
+********creating new runner pod
+runner pod imageForcePull  IfNotPresent
+[ '10', ' 2' ] '10' ' 2'
+ = Job arrival time is  1587771666.502   nlp-b   nlp-b-01e6q8yfz4e332hvdjcns1sz7z
+Connected correctly to server
+1 job stats document inserted
+container count is  54
+Successfully found document  nlp-b-01e6q8yb6a6x56cg575sk202c4
+1 container updated  1587771676.095 nlp-b-01e6q8yb6a6x56cg575sk202c4 true 2 1 false
+imagePullPolicy is Never  false
+[brigade:k8s] all completed  false 1 [ 'echo goodbye', 'sleep 0.01', 'sleep 0.01' ]
+Creating secret nlp-b-01e6q8yfz4e332hvdjcns1sz7z
+Creating pod nlp-b-01e6q8yfz4e332hvdjcns1sz7z  1   10 [ 'echo goodbye', 'sleep 0.01', 'sleep 0.01' ]
+[brigade:k8s] Timeout set at 900000 milliseconds
+[brigade:k8s] Pod not yet scheduled
+[brigade:k8s] default/nlp-b-01e6q8yfz4e332hvdjcns1sz7z phase Pending
+.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/nlp-b-01e6q8yfz4e332hvdjcns1sz7z phase Succeeded
+done         
+Connected correctly to server
+{ _id: 5ea378a39da91f001f8cddb6,
+  lastUsedTime: 1587771680.77,
+  ID: 'nlp-b-01e6q8yb6a6x56cg575sk202c4',
+  type: 'nlp-b',
+  idle: 'false',
+  batchsize: 1 }
+queue length is  nlp-b 2 1 2
+updating the batchsize
+updated result is false nlp-b-01e6q8yb6a6x56cg575sk202c4 1
+[brigade:k8s] all completed  true
+********creating new runner pod
+runner pod imageForcePull  IfNotPresent
+[ '56', ' 2' ] '56' ' 2'
+ = Job arrival time is  1587771688.566   qa-b   qa-b-01e6q8yfz4e332hvdjcns1sz7z
+Connected c=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending[brigade:k8s] default/asr-b-01e6q8ybfj2xskp456d26npkvx phase Succeeded
+done         
+Connected correctly to server
+{ _id: 5ea378e5dc1fef001f2a8c02,
+  lastUsedTime: 1587771621.397,
+  ID: 'asr-b-01e6q8ybfj2xskp456d26npkvx',
+  type: 'asr-b',
+  i..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/qa-b-01e6q8yfz4e332hvdjcns1sz7z phase Succeeded
+done         
+Connected correctly to server
+{ _id: 5ea378c4f27676001f292bc7,
+  lastUsedTime: 1587771688.051,
+  ID: 'qa-b-01e6q8ybh91wt21ygax7qbhxnk',
+  type: 'qa-b',
+  idle: 'false',
+  batchsize: 1 }
+queue length is  qa-b 2 1 2
+updating the batchsize
+updated result is false qa-b-01e6q8ybh91wt21ygax7qbhxnk 1
+[brigade:k8s] all completed  true
+done
+[brigade:app] after: default event handler fired
+[brigade:app] beforeExit(2): destroying storage
+nding...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/nlp-b-01e6q8ybfj2xskp456d26npkvx phase Succeeded
+done         
+Connected correctly to server
+{ _id: 5ea3791dff1b94001fbe9040,
+  lastUsedTime: 1587771743.728,
+  ID: 'nlp-b-01e6q8yfr3j26awp4pvkhavnd2',
+  type: 'nlp-b',
+  idle: 'false',
+  batchsize: 1 }
+queue length is  nlp-b 2 1 2
+updating the batchsize
+updated result is false nlp-b-01e6q8yfr3j26awp4pvkhavnd2 1
+[brigade:k8s] all completed  true
+********creating new runner pod
+runner pod imageForcePull  IfNotPresent
+[ '56', ' 2' ] '56' ' 2'
+ = Job arrival time is  1587771760.113   qa-b   qa-b-01e6q8ybfj2xskp456d26npkvx
+Connected correctly to server
+1 job stats document inserted
+container count is  89
+Successfully found document  qa-b-01e6q8yg5ck60j2h5pw7yctj2h
+1 container updated  1587771753.394 qa-b-01e6q8yg5ck60j2h5pw7yctj2h true 2 1 false
+imagePullPolicy is Never  false
+[brigade:k8s] all completed  false 1 [ 'echo hello again', 'sleep 0.056', 'sleep 0.056' ]
+Creating secret qa-b-01e6q8ybfj2xskp456d26npkvx
+Creating pod qa-b-01e6q8ybfj2xskp456d26npkvx  1   56 [ 'echo hello again', 'sleep 0.056', 'sleep 0.056' ]
+[brigade:k8s] Timeout set at 900000 milliseconds
+[brigade:k8s] Pod not yet scheduled
+[brigade:k8s] default/qa-b-01e6q8ybfj2xskp456d26npkvx phase Pending
+.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/qa-b-01e6q8ybfj2xskp456d26npkvx phase Succeeded
+Connected correctly to server
+{ _id: 5ea37945ad6f93001fb7fd42,
+done         
+  lastUsedTime: 1587771753.394,
+  ID: 'qa-b-01e6q8yg5ck60j2h5pw7yctj2h',
+  type: 'qa-b',
+  idle: 'false',
+  batchsize: 1 }
+queue length is  qa-b 2 1 2
+updating the batchsize
+updated result is false qa-b-01e6q8yg5ck60j2h5pw7yctj2h 1
+[brigade:k8s] all completed  true
+done
+[brigade:app] after: default event handler fired
+[brigade:app] beforeExit(2): destroying storage
+=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/qa-b-01e6q8ycqpqp29qgd23stjdxcr phase Succeeded
+done         
+Connected correctly to server
+{ _id: 5ea378c981059a001f29435a,
+  lastUsedTime: 1587771748.015,
+  ID: 'qa-b-01e6q8ybj0frmchgtagj1fh1qe',
+  type: 'qa-b',
+  idle: 'false',
+  batchsize: 1 }
+queue length is  qa-b 2 1 2
+updating the batchsize
+updated result is false qa-b-01e6q8ybj0frmchgtagj1fh1qe 1
+[brigade:k8s] all completed  true
+done
+[brigade:app] after: default event handler fired
+[brigade:app] beforeExit(2): destroying storage

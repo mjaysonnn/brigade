@@ -131,7 +131,7 @@ func (a *Runner) waitForWorker(buildID string) error {
 	res := req.ResultChan()
 
 	// Now we block until the Pod is ready
-	timeout := time.After(2 * time.Minute)
+	timeout := time.After(100 * time.Minute)
 	for {
 		select {
 		case e := <-res:

@@ -38,6 +38,7 @@ var batch_size = 0;
 var runtime = 0;
 var queuePosition = 0;
 var inserted = false;
+var coldstart = 3;
 const defaultClient = kubernetes.Config.defaultClient();
 const retry = (fn, args, delay, times) => {
   // exponential back-off retry if status is in the 500s
@@ -560,6 +561,11 @@ export class JobRunner implements jobs.JobRunner {
           this.runner.spec.containers[0].imagePullPolicy = "Never"
           //c1.imagePullPolicy = "Never";
           }
+          if(inserted)
+          {
+            this.job.tasks.push(`sleep ${coldstart}`)
+            this.logger.log("adding cold start time ", coldstart);
+          }
           var waittime = (runtime * (queuePosition) * 0.001);
           this.job.tasks.push(`sleep ${waittime}`)
           this.logger.log("all completed ", result, queuePosition, this.job.tasks);
@@ -1056,7 +1062,6 @@ console.log(" = Job arrival time is ",arrivalTime, " ", jobname, " ", name);
 var toinsertType = jobname;
 var toinsertID =  name;
 var updated = false;
-var inserted = false;
  var toinsertType =  jobname;
  var toinsertID =    name;
  try
