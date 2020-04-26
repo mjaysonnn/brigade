@@ -174,49 +174,56 @@ def process_data(df):
                         # "cs_state.startedAt",
                         # "cs_state.finishedAt",
                         # 'cs_state_diff',
-                        'start_to_c3lasttransition',
-                        'c3lasttransition_to_cs_finished',
+                        # 'start_to_c3lasttransition',
+                        # 'c3lasttransition_to_cs_finished',
+                        'Minimum',
+                        'Maximum',
                         'total_turnaround_lat'
                         ]]
 
     # print (df)
     
+    df["JobHash"] = df['meta.name'].str[-26:]
     df["AppID"] = df['meta.name'].str[:-27]
-    df["Baseline_bool"]=df['AppID'].str.contains(pat = "-b$")
+    df["Baseline_bool"] = df['AppID'].str.contains(pat = "-b$")
     booleanDictionary = {True: 'Baseline', False: 'SlackPrediction'}
     df["Expt"] = df["Baseline_bool"]
     df["Expt"] = df["Expt"].replace(booleanDictionary)
     df["AppName"] = df['AppID'].map(lambda x: x.rstrip('-b'))
-
-    print (df)
-
     total_relevant_rows = df.shape[0]
-    return df
+    print (df)
+    
+    job_df = df.groupby(['JobHash', 'Expt']).agg({'total_turnaround_lat': ['sum'], 'Minimum':['min'], 'Maximum':['max'], 'AppID': ['sum']})
+    job_df = job_df.reset_index()
+    job_df.columns = job_df.columns.droplevel(1)
+    print (job_df)
+
+    return job_df
 
 def plot_data(df):
     merged_pdf = PdfFileMerger()
-    for appname in df.AppName.unique():
-        fig = plt.figure(figsize=(10,6))
-        appdf = df[df['AppName'] == appname]
-        baseline_df = appdf.loc[appdf['Expt'] == "Baseline"]
-        slackpred_df = appdf.loc[appdf['Expt'] == "SlackPrediction"]
-        sns.distplot(baseline_df['total_turnaround_lat'], label = "Baseline", hist=True, kde=False, rug=False)
-        sns.distplot(slackpred_df['total_turnaround_lat'], label = "SlackPrediction", hist=True, kde=False, rug=False)
-        plt.title(appname)
-        plt.legend()
-        close_fig(merged_pdf)
+    # for appname in df.AppName.unique():
+    #     fig = plt.figure(figsize=(10,6))
+    #     appdf = df[df['AppName'] == appname]
+    #     baseline_df = appdf.loc[appdf['Expt'] == "Baseline"]
+    #     slackpred_df = appdf.loc[appdf['Expt'] == "SlackPrediction"]
+    #     sns.distplot(baseline_df['total_turnaround_lat'], label = "Baseline", hist=True, kde=False, rug=False)
+    #     sns.distplot(slackpred_df['total_turnaround_lat'], label = "SlackPrediction", hist=True, kde=False, rug=False)
+    #     plt.title(appname)
+    #     plt.legend()
+    #     close_fig(merged_pdf)
     
     fig = plt.figure(figsize=(10,6))
     baseline_df = df.loc[df['Expt'] == "Baseline"]
     slackpred_df = df.loc[df['Expt'] == "SlackPrediction"]
-    sns.distplot(baseline_df['total_turnaround_lat'], label = "Baseline", hist=True, kde=False, rug=False)
-    sns.distplot(slackpred_df['total_turnaround_lat'], label = "SlackPrediction", hist=True, kde=False, rug=False)
+    sns.distplot(baseline_df['total_turnaround_lat'], label = "Baseline", hist=True, kde=True, rug=False).set(xlim=(0))
+    sns.distplot(slackpred_df['total_turnaround_lat'], label = "SlackPrediction", hist=True, kde=True, rug=False).set(xlim=(0))
     plt.title("All Jobs - Baseline vs SlackPrediction")
     plt.legend()
     close_fig(merged_pdf)
 
     fig, ax = plt.subplots(figsize=(10,6))
-    df['start_time_int64'] = df.startTime.astype(np.int64)
+    df['start_time_int64'] = df.Minimum.astype(np.int64)
     df.plot(x='start_time_int64', y='total_turnaround_lat', kind='scatter', ax=ax)
     ## Need to fix why we see 00:00:00 after we convert back to time.
     # ax.set_xticklabels([dt.date.fromtimestamp(ts / 1e9).strftime('%H:%M:%S') for ts in ax.get_xticks()])
