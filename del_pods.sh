@@ -1,6 +1,7 @@
-n=$1
+podname=$1
 namespace=$2
-ar=('frontend' 'asr' 'nlp' 'worker' 'qa-' 'vacuum')
+ar=('frontend' 'asr-slackware10' 'nlp-slackware10'  'qa-slackware10' 'vacuum' 'worker')
+echo $podname,$ar
 for name in "${ar[@]}"
 do
 echo $name

@@ -1,4 +1,4 @@
-arr=(prakhar ankit 1 rishabh manish abhinav) 
+arr=$1
  
 # To print all elements of array 
 echo ${arr[@]}        
