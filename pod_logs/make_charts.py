@@ -53,7 +53,7 @@ def close_fig(mypdf):
     plt.close('all')
 
 def write_pdf(mypdf):
-    mypdf.write("output.pdf")
+    mypdf.write("/home/cc/go_projects/src/github.com/brigadecore/brigade/brigade-worker/output.pdf")
 
 """ 
 def parse_arguments():
@@ -66,27 +66,25 @@ total_read_rows = 0
 total_complete_rows = 0
 total_relevant_rows=0
 
-def run_reader(csv_file="all_pods_output.csv"):
+def run_reader(csv_file=sys.argv[1]):
     global total_read_rows
     print ("Opening file: {}".format(csv_file))
     column_names = [
             "meta.name",
             "meta.uid",
             "meta.creationTimestamp",
-            "statusConditionsBegin",
             "c0.type",
-            "c0.lastTransitionTime",
-            "c0.status",
             "c1.type",
-            "c1.lastTransitionTime",
-            "c1.status",
-            "c2.type",
-            "c2.lastTransitionTime",
-            "c2.status",
+            "c2.type",  
             "c3.type",
+            "c0.lastTransitionTime",
+            "c1.lastTransitionTime",
+            "c2.lastTransitionTime",
             "c3.lastTransitionTime",
+            "c0.status",
+            "c1.status",
+            "c2.status",
             "c3.status",
-            "statusConditionsEnd",
             "cs_state.startedAt",
             "cs_state.finishedAt",
             "init_cs_state.finishedAt",
@@ -94,14 +92,14 @@ def run_reader(csv_file="all_pods_output.csv"):
             "startTime"
     ]
     df = pd.read_csv(csv_file, header=None, sep=",", names=column_names, index_col=False)
+    print(df,"\n***************************", total_complete_rows) 
     df = df.drop([
         'meta.uid',
-        'statusConditionsBegin',
         'c0.type',
         'c1.type',
         'c2.type',
-        'c3.type',
-        'statusConditionsEnd'], axis=1).reset_index(drop=True)
+        'c3.type'
+         ], axis=1).reset_index(drop=True)
     # print(df['c1.status'].unique())
     # print(df['c2.status'].unique())
     for col in [
@@ -123,10 +121,17 @@ def clean_data(df):
     global total_complete_rows
     global total_relevant_rows
     df = df[df['cs_state.startedAt'].notnull()]
+    df = df[df['cs_state.finishedAt'].notnull()]
     df = df[df['init_cs_state.startedAt'].notnull()]
+    df = df[df['init_cs_state.finishedAt'].notnull()]
+    df = df[df['c2.lastTransitionTime'].notnull()]
+    df = df[df['c3.lastTransitionTime'].notnull()]
+    df = df[df['c1.lastTransitionTime'].notnull()]
+    df = df[df['c0.lastTransitionTime'].notnull()]
+    df = df[df['startTime'].notnull()]
     df = df[df.notna().any(axis=1)]
     total_complete_rows = df.shape[0]
-    
+    print(df['cs_state.finishedAt'],df['cs_state.startedAt'],"\n***************************", total_complete_rows) 
     df = df[df['meta.name'].str.match('asr|nlp|qa')]
     total_relevant_rows = df.shape[0]
     df = df.reset_index(drop=True)
@@ -199,7 +204,7 @@ def plot_data(df):
         fig = plt.figure(figsize=(10,6))
         appdf = df[df['AppName'] == appname]
         baseline_df = appdf.loc[appdf['Expt'] == "Baseline"]
-        slackpred_df = appdf.loc[appdf['Expt'] == "SlackPrediction"]
+        Slackpred_df = appdf.loc[appdf['Expt'] == "SlackPrediction"]
         sns.distplot(baseline_df['total_turnaround_lat'], label = "Baseline", hist=True, kde=False, rug=False)
         sns.distplot(slackpred_df['total_turnaround_lat'], label = "SlackPrediction", hist=True, kde=False, rug=False)
         plt.title(appname)
@@ -232,7 +237,7 @@ viz_setup()
 df = run_reader()
 df = clean_data(df)
 df = process_data(df)
-df = plot_data(df)
+#df = plot_data(df)
 
 print ("Percentage of incomplete rows = {:.1f}".format((total_read_rows - total_complete_rows)*100/total_read_rows))
 print ("Percentage of irrlevant rows = {:.1f}".format((total_read_rows - total_relevant_rows)*100/total_read_rows))

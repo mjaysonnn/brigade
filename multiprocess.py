@@ -8,6 +8,7 @@ import time
 def worker(num):
     """thread worker function"""
     print 'Worker:', num
+    #cmd= "pwd"
     cmd="brig exec deis/empty-testbed -f %s > 10minjob-%s.log"%(sys.argv[2],num)
     os.system(cmd)
     return
