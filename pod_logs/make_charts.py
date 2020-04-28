@@ -53,7 +53,7 @@ def close_fig(mypdf):
     plt.close('all')
 
 def write_pdf(mypdf):
-    mypdf.write("/home/cc/go_projects/src/github.com/brigadecore/brigade/brigade-worker/output.pdf")
+    mypdf.write("output.pdf")
 
 """ 
 def parse_arguments():
@@ -92,7 +92,6 @@ def run_reader(csv_file=sys.argv[1]):
             "startTime"
     ]
     df = pd.read_csv(csv_file, header=None, sep=",", names=column_names, index_col=False)
-    print(df,"\n***************************", total_complete_rows) 
     df = df.drop([
         'meta.uid',
         'c0.type',
@@ -131,7 +130,6 @@ def clean_data(df):
     df = df[df['startTime'].notnull()]
     df = df[df.notna().any(axis=1)]
     total_complete_rows = df.shape[0]
-    print(df['cs_state.finishedAt'],df['cs_state.startedAt'],"\n***************************", total_complete_rows) 
     df = df[df['meta.name'].str.match('asr|nlp|qa')]
     total_relevant_rows = df.shape[0]
     df = df.reset_index(drop=True)
@@ -153,6 +151,14 @@ def process_data(df):
     df['Minimum'] = df.loc[:, ['startTime', 'c3.lastTransitionTime', 'c0.lastTransitionTime', 'c1.lastTransitionTime', 'c2.lastTransitionTime', 'cs_state.startedAt', 'cs_state.finishedAt']].min(axis=1)
     df['Maximum'] = df.loc[:, ['startTime', 'c3.lastTransitionTime', 'c0.lastTransitionTime', 'c1.lastTransitionTime', 'c2.lastTransitionTime', 'cs_state.startedAt', 'cs_state.finishedAt']].max(axis=1)
     df['total_turnaround_lat'] = (df['Maximum'] - df['Minimum']).dt.total_seconds()
+    
+    df['delta_c1.lastTransitionTime'] = (df['c1.lastTransitionTime'] - df['Minimum']).dt.total_seconds()
+    df['delta_init_cs_state.startedAt'] = (df['init_cs_state.startedAt'] - df['Minimum']).dt.total_seconds()
+    df['delta_init_cs_state.finishedAt'] = (df['init_cs_state.finishedAt'] - df['Minimum']).dt.total_seconds()
+    df['delta_c0.lastTransitionTime'] = (df['c0.lastTransitionTime'] - df['Minimum']).dt.total_seconds()
+    df['delta_c3.lastTransitionTime'] = (df['c3.lastTransitionTime'] - df['Minimum']).dt.total_seconds()
+    df['delta_cs_state.startedAt'] = (df['cs_state.startedAt'] - df['Minimum']).dt.total_seconds()
+    df['delta_cs_state.finishedAt'] = (df['cs_state.finishedAt'] - df['Minimum']).dt.total_seconds()
 
     """     print (df[["meta.name",
                     "startTime", 
@@ -183,14 +189,21 @@ def process_data(df):
                         # 'c3lasttransition_to_cs_finished',
                         'Minimum',
                         'Maximum',
-                        'total_turnaround_lat'
+                        'total_turnaround_lat',
+                        'delta_c1.lastTransitionTime',
+                        'delta_init_cs_state.startedAt',
+                        'delta_init_cs_state.finishedAt',
+                        'delta_c0.lastTransitionTime',
+                        'delta_c3.lastTransitionTime',
+                        'delta_cs_state.startedAt',
+                        'delta_cs_state.finishedAt'
                         ]]
 
     # print (df)
     
     df["JobHash"] = df['meta.name'].str[-26:]
     df["AppID"] = df['meta.name'].str[:-27]
-    df["Baseline_bool"] = df['AppID'].str.contains(pat = "-b$")
+    df["Baseline_bool"] = df['AppID'].str.contains(pat = "-baseline$")
     booleanDictionary = {True: 'Baseline', False: 'SlackPrediction'}
     df["Expt"] = df["Baseline_bool"]
     df["Expt"] = df["Expt"].replace(booleanDictionary)
@@ -198,20 +211,24 @@ def process_data(df):
     total_relevant_rows = df.shape[0]
     print (df)
     
-    job_df = df.groupby(['JobHash', 'Expt']).agg({'total_turnaround_lat': ['sum'], 'Minimum':['min'], 'Maximum':['max'], 'AppID': ['sum']})
+    job_df = df.groupby(['JobHash', 'Expt']).agg(
+        {'total_turnaround_lat': ['sum'], 
+         'Minimum':['min'], 
+         'Maximum':['max'], 
+         'AppID': ['sum']})
     job_df = job_df.reset_index()
     job_df.columns = job_df.columns.droplevel(1)
     print (job_df)
 
-    return job_df
+    return df, job_df
 
-def plot_data(df):
+def plot_data(func_df, job_df):
     merged_pdf = PdfFileMerger()
-    for appname in df.AppName.unique():
+    for appname in func_df.AppName.unique():
         fig = plt.figure(figsize=(10,6))
-        appdf = df[df['AppName'] == appname]
+        appdf = func_df[func_df['AppName'] == appname]
         baseline_df = appdf.loc[appdf['Expt'] == "Baseline"]
-        Slackpred_df = appdf.loc[appdf['Expt'] == "SlackPrediction"]
+        slackpred_df = appdf.loc[appdf['Expt'] == "SlackPrediction"]
         sns.distplot(baseline_df['total_turnaround_lat'], label = "Baseline", hist=True, kde=False, rug=False)
         sns.distplot(slackpred_df['total_turnaround_lat'], label = "SlackPrediction", hist=True, kde=False, rug=False)
         plt.title(appname)
@@ -219,8 +236,8 @@ def plot_data(df):
         close_fig(merged_pdf)
     
     fig = plt.figure(figsize=(10,6))
-    baseline_df = df.loc[df['Expt'] == "Baseline"]
-    slackpred_df = df.loc[df['Expt'] == "SlackPrediction"]
+    baseline_df = job_df.loc[job_df['Expt'] == "Baseline"]
+    slackpred_df = job_df.loc[job_df['Expt'] == "SlackPrediction"]
     sns.distplot(baseline_df['total_turnaround_lat'], label = "Baseline", hist=True, kde=True, rug=False).set(xlim=(0))
     sns.distplot(slackpred_df['total_turnaround_lat'], label = "SlackPrediction", hist=True, kde=True, rug=False).set(xlim=(0))
     plt.title("All Jobs - Baseline vs SlackPrediction")
@@ -228,23 +245,58 @@ def plot_data(df):
     close_fig(merged_pdf)
 
     fig, ax = plt.subplots(figsize=(10,6))
-    df['start_time_int64'] = df.Minimum.astype(np.int64)
-    df.plot(x='start_time_int64', y='total_turnaround_lat', kind='scatter', ax=ax)
+    job_df['start_time_int64'] = job_df.Minimum.astype(np.int64)
+    job_df.plot(x='start_time_int64', y='total_turnaround_lat', kind='scatter', ax=ax)
     ## Need to fix why we see 00:00:00 after we convert back to time.
     # ax.set_xticklabels([dt.date.fromtimestamp(ts / 1e9).strftime('%H:%M:%S') for ts in ax.get_xticks()])
     # ax.set_yticklabels([dt.date.fromtimestamp(ts / 1e9).strftime('%H:%M:%S') for ts in ax.get_yticks()])
     close_fig(merged_pdf)
+    
+    baseline_df = func_df.loc[func_df['Expt'] == "Baseline"]
+    baseline_df = baseline_df.reset_index()
+    slackpred_df = func_df.loc[func_df['Expt'] == "SlackPrediction"]
+    slackpred_df = slackpred_df.reset_index()
+
+    for delta_plots_var in ['delta_c1.lastTransitionTime',
+                        'delta_init_cs_state.startedAt',
+                        'delta_init_cs_state.finishedAt',
+                        'delta_c0.lastTransitionTime',
+                        'delta_c3.lastTransitionTime',
+                        'delta_cs_state.startedAt',
+                        'delta_cs_state.finishedAt'] :
+        fig, ax = plt.subplots(figsize=(10,6))
+        print ("Charts for .. ", delta_plots_var)
+        # ax = sns.lineplot(x=baseline_df.index, y=delta_plots_var, label="Baseline", data=baseline_df)
+        # ax = sns.lineplot(x=slackpred_df.index, y=delta_plots_var, label="SlackPredictions", data=slackpred_df)
+        # ax = sns.scatterplot(x=baseline_df.index, y=delta_plots_var, label="Baseline", data=baseline_df)
+        # ax = sns.scatterplot(x=slackpred_df.index, y=delta_plots_var, label="SlackPredictions", data=slackpred_df)
+        # ax = sns.violinplot(x=func_df.index, y=delta_plots_var, hue='Expt', split=True, inner="quart", data=func_df)
+        # sns.despine(left=True)
+        sns.distplot(baseline_df[delta_plots_var], label = "Baseline", norm_hist=True, kde=False, rug=False)
+        sns.distplot(slackpred_df[delta_plots_var], label = "SlackPrediction", norm_hist=True, kde=False, rug=False)
+        plt.legend()
+        close_fig(merged_pdf)
+        print ("Done", delta_plots_var)
+    
+    fig, ax = plt.subplots(figsize=(10,6))
+    ax = sns.lineplot(x=baseline_df.index, y='delta_init_cs_state.startedAt', data=baseline_df)
+    ax = sns.lineplot(x=slackpred_df.index, y='delta_init_cs_state.startedAt', data=slackpred_df)
+    close_fig(merged_pdf)
+    
+    print (slackpred_df['delta_c3.lastTransitionTime'])
+    
+    ## Write all charts to PDF here
     write_pdf(merged_pdf)
 
-    return df
+    return func_df, job_df
 
 # def main():
 # args = parse_arguments()
 viz_setup()
-df = run_reader("all_pods_output.csv")
+df = run_reader("slack-aware-logs.csv")
 df = clean_data(df)
-df = process_data(df)
-#df = plot_data(df)
+func_df, job_df = process_data(df)
+df = plot_data(func_df, job_df)
 
 print ("Percentage of incomplete rows = {:.1f}".format((total_read_rows - total_complete_rows)*100/total_read_rows))
 print ("Percentage of irrlevant rows = {:.1f}".format((total_read_rows - total_relevant_rows)*100/total_read_rows))
