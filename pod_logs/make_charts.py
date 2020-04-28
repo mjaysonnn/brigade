@@ -207,7 +207,6 @@ def process_data(df):
 
 def plot_data(df):
     merged_pdf = PdfFileMerger()
-<<<<<<< HEAD
     for appname in df.AppName.unique():
         fig = plt.figure(figsize=(10,6))
         appdf = df[df['AppName'] == appname]
@@ -218,18 +217,6 @@ def plot_data(df):
         plt.title(appname)
         plt.legend()
         close_fig(merged_pdf)
-=======
-    # for appname in df.AppName.unique():
-    #     fig = plt.figure(figsize=(10,6))
-    #     appdf = df[df['AppName'] == appname]
-    #     baseline_df = appdf.loc[appdf['Expt'] == "Baseline"]
-    #     slackpred_df = appdf.loc[appdf['Expt'] == "SlackPrediction"]
-    #     sns.distplot(baseline_df['total_turnaround_lat'], label = "Baseline", hist=True, kde=False, rug=False)
-    #     sns.distplot(slackpred_df['total_turnaround_lat'], label = "SlackPrediction", hist=True, kde=False, rug=False)
-    #     plt.title(appname)
-    #     plt.legend()
-    #     close_fig(merged_pdf)
->>>>>>> 1eb37a69d3080be66a2e63a4cd7848e7365cf826
     
     fig = plt.figure(figsize=(10,6))
     baseline_df = df.loc[df['Expt'] == "Baseline"]
@@ -254,7 +241,7 @@ def plot_data(df):
 # def main():
 # args = parse_arguments()
 viz_setup()
-df = run_reader()
+df = run_reader("all_pods_output.csv")
 df = clean_data(df)
 df = process_data(df)
 #df = plot_data(df)
