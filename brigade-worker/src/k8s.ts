@@ -563,11 +563,13 @@ export class JobRunner implements jobs.JobRunner {
           }
           if(inserted)
           {
-            this.job.tasks.push(`sleep ${coldstart}`)
-            this.logger.log("adding cold start time ", coldstart);
+            //this.job.tasks.push(`sleep ${coldstart}`)
+            //this.logger.log("adding cold start time ", coldstart);
           }
           var waittime = (runtime * (queuePosition) * 0.001);
           this.job.tasks.push(`sleep ${waittime}`)
+          this.job.tasks.push("time=$(date)")
+          this.job.tasks.push("echo $(date -d \"$time\" +\"%s\")")
           this.logger.log("all completed ", result, queuePosition, this.job.tasks);
           //result = imageForcePull;
 
@@ -704,7 +706,7 @@ export class JobRunner implements jobs.JobRunner {
   public wait(): Promise<jobs.Result> {
     // Should probably protect against the case where start() was not called
     let k = this.client;
-    let timeout = this.job.timeout || 60000;
+    let timeout = this.job.timeout || 600000;
     let name = this.name;
     let ns = this.project.kubernetes.namespace;
     let podUpdater: request.Request = undefined;
@@ -742,7 +744,8 @@ export class JobRunner implements jobs.JobRunner {
           podUpdater = this.startUpdatingPod();
         }
         if (!this.pod || this.pod.status == undefined) {
-          this.logger.log("Pod not yet scheduled");
+          const arrivalTime = Date.now()/1000
+          this.logger.log("Pod not yet scheduled", arrivalTime);
           return;
         }
 
@@ -752,6 +755,8 @@ export class JobRunner implements jobs.JobRunner {
         var newbatchsize = 8;
         const currentTime = Date.now()/1000;
         if (phase == "Succeeded") {
+          const arrivalTime = Date.now()/1000
+          console.log("Job Finished ", arrivalTime)
           clearTimers();
         let result = new K8sResult(phase);
         
@@ -839,9 +844,11 @@ export class JobRunner implements jobs.JobRunner {
             reject(new Error(cs[0].state.waiting.message));
           }
         }
+
         if (!this.job.streamLogs || (this.job.streamLogs && this.pod.status.phase != "Running")) {
           // don't display "Running" when we're asked to display job Pod logs
-          this.logger.log(`${this.pod.metadata.namespace}/${this.pod.metadata.name} phase ${this.pod.status.phase}`);
+          const arrivalTime = Date.now()/1000
+          this.logger.log(`${this.pod.metadata.namespace}/${this.pod.metadata.name} phase ${this.pod.status.phase}`, arrivalTime);
         }
         // In all other cases we fall through and let the fn be run again.
       };
@@ -1058,11 +1065,13 @@ var foundIdle = false;
 const arrivalTime = Date.now()/1000;
 var imagePullPolicy = true;
 var containerExist = false;
-console.log(" = Job arrival time is ",arrivalTime, " ", jobname, " ", name);
-var toinsertType = jobname;
+//console.log(" = Job arrival time is ",arrivalTime, " ", jobname, " ", name);
+var res = jobname.split("-");
+var toinsertType = res[0];
+console.log("Job arrival time is ", toinsertType, " ", arrivalTime, " ", name , "res1 is ", res[1]);
 var toinsertID =  name;
 var updated = false;
- var toinsertType =  jobname;
+//var toinsertType =  jobname;
  var toinsertID =    name;
  try
  {
@@ -1089,7 +1098,7 @@ if (count === 0) {
   }
  else
  {
-  var query = {idle: "true", type:toinsertType};
+  var query = {idle: "true", type:toinsertType}; 
       
       let container = await dbo.collection("containers").findOne(query)
       if (container != null && container.batchsize >= 2){
@@ -1097,7 +1106,7 @@ if (count === 0) {
           idleContainer = container.ID;
           queuePosition = batch_size - updatedBatchSize; 
           var options = { "upsert": false };
-          console.log("Successfully found document ", idleContainer);
+          console.log("Successfully found document ", idleContainer, toinsertType, res);
           foundIdle = true;
           if (updatedBatchSize == 1){
             var updatedContainer = await dbo.collection("containers").findOneAndUpdate({idle:"true", type:toinsertType}, {$set:{idle: "false" , batchsize: updatedBatchSize}})

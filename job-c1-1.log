@@ -1,0 +1,124 @@
+Event created. Waiting for worker pod named "brigade-worker-01e6vjy5gq06kp9cbbvp6zr12h".
+Build: 01e6vjy5gq06kp9cbbvp6zr12h, Worker: brigade-worker-01e6vjy5gq06kp9cbbvp6zr12h
+prestart: no dependencies file found
+myArgs:  [] asr-undefined nlp-undefined qa-undefined
+[brigade] brigade-worker version: 1.2.1
+[brigade:k8s] Creating PVC named brigade-worker-01e6vjy5gq06kp9cbbvp6zr12h
+[brigade:k8s] Jashwan message ***** Creating PVC named brigade-worker-01e6vjy5gq06kp9cbbvp6zr12h
+********creating new runner pod
+runner pod imageForcePull  IfNotPresent
+[ '45', ' 8' ] '45' ' 8'
+ = Job arrival time is  1587916275.158   asr-sample   asr-sample-01e6vjy5gq06kp9cbbvp6zr12h
+Connected correctly to server
+1 job stats document inserted
+container count is  4
+Successfully found document  asr-sample-01e6vjy1w15fyc6rtfk173vjyk
+1 container updated  1587916259.022 asr-sample-01e6vjy1w15fyc6rtfk173vjyk true 5 4 false
+imagePullPolicy is Never  false
+[brigade:k8s] all completed  false 4 [ 'echo hello', 'sleep 0.045', 'sleep 0.18' ]
+Creating secret asr-sample-01e6vjy5gq06kp9cbbvp6zr12h
+Creating pod asr-sample-01e6vjy5gq06kp9cbbvp6zr12h  4   45 [ 'echo hello', 'sleep 0.045', 'sleep 0.18' ]
+[brigade:k8s] Timeout set at 900000 milliseconds
+jashwant list pods*****
+[brigade:k8s] Pod not yet scheduled
+[brigade:k8s] default/asr-sample-01e6vjy5gq06kp9cbbvp6zr12h phase Pending
+.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/asr-sample-01e6vjy5gq06kp9cbbvp6zr12h phase Succeeded
+done         
+Connected correctly to server
+{ _id: 5ea5adc6e06d23001f849cfc,
+  lastUsedTime: 1587916282.994,
+  ID: 'asr-sample-01e6vjy1w15fyc6rtfk173vjyk',
+  type: 'asr-sample',
+  idle: 'true',
+  batchsize: 8 }
+queue length is  asr-sample 9 8 8
+[brigade:k8s] all completed  true
+********creating new runner pod
+runner pod imageForcePull  IfNotPresent
+[ '10', ' 8' ] '10' ' 8'
+ = Job arrival time is  1587916283.265   nlp-sample   nlp-sample-01e6vjy5gq06kp9cbbvp6zr12h
+Connected correctly to server
+1 job stats document inserted
+container count is  4
+Successfully found document  nlp-sample-01e6vjy1vx1bgsa3v3mwbryq5g
+1 container updated  1587916269.081 nlp-sample-01e6vjy1vx1bgsa3v3mwbryq5g true 5 4 false
+imagePullPolicy is Never  false
+[brigade:k8s] all completed  false 4 [ 'echo goodbye', 'sleep 0.01', 'sleep 0.04' ]
+Creating secret nlp-sample-01e6vjy5gq06kp9cbbvp6zr12h
+Creating pod nlp-sample-01e6vjy5gq06kp9cbbvp6zr12h  4   10 [ 'echo goodbye', 'sleep 0.01', 'sleep 0.04' ]
+[brigade:k8s] Timeout set at 900000 milliseconds
+[brigade:k8s] Pod not yet scheduled
+[brigade:k8s] default/nlp-sample-01e6vjy5gq06kp9cbbvp6zr12h phase Pending
+[brigade:k8s] default/nlp-sample-01e6vjy5gq06kp9cbbvp6zr12h phase Succeeded
+Connected correctly to server
+{ _id: 5ea5adcd58bcdd001f922362,
+  lastUsedTime: 1587916269.081,
+  ID: 'nlp-sample-01e6vjy1vx1bgsa3v3mwbryq5g',
+  type: 'nlp-sample',
+  idle: 'true',
+  batchsize: 4 }
+queue length is  nlp-sample 5 4 8
+updating the batchsize
+updated result is true nlp-sample-01e6vjy1vx1bgsa3v3mwbryq5g 4
+[brigade:k8s] all completed  true
+********creating new runner pod
+runner pod imageForcePull  IfNotPresent
+[ '56', ' 8' ] '56' ' 8'
+ = Job arrival time is  1587916289.317   qa-sample   qa-sample-01e6vjy5gq06kp9cbbvp6zr12h
+Connected correctly to server
+1 job stats document inserted
+container count is  4
+Successfully found document  qa-sample-01e6vjy1vx1bgsa3v3mwbryq5g
+1 container updated  1587916264.982 qa-sample-01e6vjy1vx1bgsa3v3mwbryq5g true 5 4 false
+imagePullPolicy is Never  false
+[brigade:k8s] all completed  false 4 [ 'echo hello again', 'sleep 0.056', 'sleep 0.224' ]
+Creating secret qa-sample-01e6vjy5gq06kp9cbbvp6zr12h
+Creating pod qa-sample-01e6vjy5gq06kp9cbbvp6zr12h  4   56 [ 'echo hello again', 'sleep 0.056', 'sleep 0.224' ]
+[brigade:k8s] Timeout set at 900000 milliseconds
+[brigade:k8s] Pod not yet scheduled
+[brigade:k8s] default/qa-sample-01e6vjy5gq06kp9cbbvp6zr12h phase Pending
+[brigade:k8s] default/qa-sample-01e6vjy5gq06kp9cbbvp6zr12h phase Succeeded
+Connected correctly to server
+{ _id: 5ea5add358bcdd001f922364,
+  lastUsedTime: 1587916279.112,
+  ID: 'qa-sample-01e6vjy1vx1bgsa3v3mwbryq5g',
+  type: 'qa-sample',
+  idle: 'true',
+  batchsize: 3 }
+queue length is  qa-sample 4 3 8
+updating the batchsize
+updated result is true qa-sample-01e6vjy1vx1bgsa3v3mwbryq5g 3
+[brigade:k8s] all completed  true
+done
+[brigade:app] after: default event handler fired
+[brigade:app] beforeExit(2): destroying storage
+is  nlp-sample 6 5 8
+updating the batchsize
+updated result is true nlp-sample-01e6vjy1vx1bgsa3v3mwbryq5g 5
+[brigade:k8s] all completed  true
+*****.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending.... Pending=... Pending.=.. Pending..=. Pending...= Pending.... Pending...= Pending..=. Pending.=.. Pending=... Pending[brigade:k8s] default/qa-sample-01e6vjy5frrg277be7ykrd589r phase Succeeded
+done         
+Connected correctly to server
+{ _id: 5ea5add358bcdd001f922364,
+  lastUsedTime: 1587916297.102,
+  ID: 'qa-sample-01e6vjy1vx1bgsa3v3mwbryq5g',
+  type: 'qa-sample',
+  idle: 'true',
+  batchsize: 6 }
+queue length is  qa-sample 7 6 8
+updating the batchsize
+updated result is true qa-sample-01e6vjy1vx1bgsa3v3mwbryq5g 6
+[brigade:k8s] all completed  true
+done
+[brigade:app] after: default event handler fired
+[brigade:app] beforeExit(2): destroying storage
+'qa-sample',
+  idle: 'true',
+  batchsize: 4 }
+queue length is  qa-sample 5 4 8
+updating the batchsize
+updated result is true qa-sample-01e6vjy1vx1bgsa3v3mwbryq5g 4
+[brigade:k8s] all completed  true
+done
+[brigade:app] after: default event handler fired
+[brigade:app] beforeExit(2): destroying storage

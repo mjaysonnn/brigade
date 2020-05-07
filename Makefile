@@ -52,9 +52,10 @@ HELM ?= helm
 ################################################################################
 # Binaries and Docker images we build and publish                              #
 ################################################################################
-IMAGES := brigade-api brigade-controller brigade-cr-gateway brigade-generic-gateway brigade-vacuum brig brigade-worker git-sidecar
+#IMAGES := brigade-api brigade-controller brigade-cr-gateway brigade-generic-gateway brigade-vacuum brig brigade-worker git-sidecar
 
-#IMAGES := brigade-worker 
+IMAGES := brigade-worker  #brigade-controller
+
 VERSION:= latest
 ifdef DOCKER_REGISTRY
 	DOCKER_REGISTRY := $(DOCKER_REGISTRY)/
@@ -185,7 +186,7 @@ push-all-images: $(addsuffix -push-image,$(IMAGES))
 
 # Helm chart/release defaults
 BRIGADE_RELEASE                 ?= brigade-server
-BRIGADE_NAMESPACE               ?= brigade
+BRIGADE_NAMESPACE               ?= default
 BRIGADE_GITHUB_GW_SERVICE       := $(BRIGADE_RELEASE)-brigade-github-app
 BRIGADE_GITHUB_GW_INTERNAL_PORT := 80
 BRIGADE_GITHUB_GW_EXTERNAL_PORT := 7744

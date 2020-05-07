@@ -4,8 +4,8 @@ import sys
 import datetime
 from load_predictor import Predictor
 import pandas as pd
-
-
+import pprint
+from bson.son import SON
 myclient = pymongo.MongoClient("mongodb://10.52.3.47:27017/")
 
 mydb = myclient["mydb"]
@@ -14,7 +14,13 @@ mycol = mydb["job_stats"]
 arrivals = []
 for x in list(mycol.find()):
     arrivals.append(x['arrivalTime'])
-print(arrivals)
+#print(arrivals)
+pprint.pprint(list(mycol.aggregate( [{ "$group": {"_id": "$container", "count": { "$sum": 1 } } }, 
+				{"$sort": SON([("count", -1), ("_id", -1)])}
+				])))
+name="asr-slackprediction-01e7e831w881nsq2s9n1s5v7kb"
+print((list(mycol.find({"container": name}))))
+"""
 
 predictor = Predictor(init_load=50,model_path='poisson_model_32.h5' , scaler_path='poisson_scaler.save')
 
@@ -35,4 +41,4 @@ Times = 1.5
 load = max(y)
 
 forecasts = predictor.predict(load * Times)
-print(forecasts)
+print(forecasts)"""

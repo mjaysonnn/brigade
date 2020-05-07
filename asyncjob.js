@@ -10,9 +10,9 @@ var i=0
 console.log('myArgs: ', myArgs, function1,function2,function3);
 
 async function exec(e, p) {
-	let asr = new Job("asr-sample", "alpine:3.4", ["echo hello", "sleep 0.045"])
-	let nlp = new Job("nlp-sample10", "alpine:3.4", ["echo goodbye","sleep 0.01"])
-	let qa = new Job("qa-sample10", "alpine:3.4", ["echo hello again", "sleep 0.056"])
+	let asr = new Job("asr-slackaware", "alpine:3.4", ["echo hello", "sleep 0.045"])
+	let nlp = new Job("nlp-slackaware", "alpine:3.4", ["echo goodbye","sleep 0.01"])
+	let qa = new Job("qa-slackaware", "alpine:3.4", ["echo hello again", "sleep 0.056"])
 
 	asr.args="45, 8";
 	nlp.args = "10, 8"; 

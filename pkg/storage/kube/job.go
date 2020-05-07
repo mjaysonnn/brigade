@@ -25,6 +25,7 @@ func (s *store) GetJob(id string) (*brigade.Job, error) {
 	}
 	for i := range pods.Items {
 		job := NewJobFromPod(pods.Items[i])
+	        fmt.Printf("*************8running job number %s *****************",i)
 		if job.ID == id {
 			return job, nil
 		}
