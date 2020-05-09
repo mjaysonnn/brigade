@@ -64,6 +64,19 @@ switch (myArgs[0]) {
 						
 				db.close();
 				});
+		break;  
+	case 'jobs':                                                                                                                              
+                      console.log(myArgs[0], 'findall in jobs');                                                                                
+                       MongoClient.connect(url, function(err, db) {                                                                              
+                                       if (err) { console.log("err.stack" , errr                                                                 
+.stack) ; throw err;}                                                                                                                             
+                                       var dbo = db.db("mydb");                                                                                  
+                                       dbo.collection("job_stats").find().toArrray(function(err, result) {                                                                                                                        
+                                                       if (err) { console.log("err.stack" , err.stack) ; throw err;}                                                                                                             
+                                                       console.log(result);                                                                      
+                                                       });
+				db.close();
+		       });
 		break;
 
 	case 'find':
