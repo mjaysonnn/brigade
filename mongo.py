@@ -1,3 +1,7 @@
+                                                                                                                                   
+
+
+
 import pymongo
 import time 
 import sys
@@ -7,14 +11,16 @@ import pandas as pd
 
 
 myclient = pymongo.MongoClient("mongodb://10.52.3.47:27017/")
-
-mydb = myclient["mydb"]
-print(mydb.list_collection_names())
-mycol = mydb["job_stats"]
-arrivals = []
-for x in list(mycol.find()):
-    arrivals.append(x['arrivalTime'])
-print(arrivals)
+mydb = myclient["mydb"]                                                                                                                           
+print(mydb.list_collection_names())                                                                                                               
+mycol = mydb["job_stats"]                                                                                                                         
+arrivals = []                                                                                                                                     
+for x in list(mycol.find()):                                                                                                                      
+    arrivals.append(x['arrivalTime'])                                                                                                             
+#print(arrivals)                                                                                                                                  
+pprint.pprint(list(mycol.aggregate( [{ "$group": {"_id": "$container", "count": { "$sum": 1 } } },                                                
+                                {"$sort": SON([("count", -1), ("_id", -1)])}                                                                      
+                                ])))
 
 predictor = Predictor(init_load=50,model_path='poisson_model_32.h5' , scaler_path='poisson_scaler.save')
 
