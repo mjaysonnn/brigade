@@ -1,4 +1,4 @@
-#Prerequisites:
+# Prerequisites:
 
 You need to install kubernetes and setup a cluster for this deployment to work. Follow instuctions from 
 Install Kubeadm: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
