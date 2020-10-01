@@ -1,4 +1,18 @@
-# Brigade: Event-based Scripting for Kubernetes
+#Prerequisites:
+
+You need to install kubernetes and setup a cluster for this deployment to work. Follow instuctions from 
+Install Kubeadm: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+
+Cluster setup: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
+
+Download python3.6 and install it on your local directory.
+
+Follow the instructions below to install brigade. you need to customize brigade installation using custom containers built from this source. The modified makefile is already available. The instructions are given below. 
+
+https://docs.brigade.sh/topics/developers/
+Note: change the docker access repository to your needs. 
+
+## Brigade: Event-based Scripting for Kubernetes
 
 ![Build Status](https://badges.deislabs.io/v1/github/build/brigadecore/brigade/badge.svg?branch=master)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2688/badge)](https://bestpractices.coreinfrastructure.org/projects/2688)
@@ -17,7 +31,7 @@ for Kubernetes.
 
  <!-- [![asciicast](https://asciinema.org/a/JBsjOpah4nTBvjqDT5dAWvefG.png)](https://asciinema.org/a/JBsjOpah4nTBvjqDT5dAWvefG) -->
 
-## The Brigade Technology Stack
+### The Brigade Technology Stack
 
 - Brigade :heart: JavaScript: Writing Brigade pipelines is as easy as writing a few lines of JavaScript.
 - Brigade :heart: Kubernetes: Brigade is Kubernetes-native. Your builds are translated into
@@ -32,42 +46,15 @@ for Kubernetes.
 The [design introduction](https://docs.brigade.sh/topics/design/) introduces Brigade concepts and
 architecture.
 
-## Quickstart
+### Quickstart
 
 Check out the quickstart on the docs [here](https://docs.brigade.sh/intro/quickstart/).
 
-## Related Projects
-
-- [Kashti](https://github.com/brigadecore/kashti) - a dashboard for your Brigade pipelines.
-- [Brigadeterm](https://github.com/slok/brigadeterm) - a simple terminal ui for brigade pipelining system.
-- [Brigade exporter](https://github.com/slok/brigade-exporter) - a [Prometheus](https://prometheus.io) exporter to gather metrics from Brigade.
-- Gateways
-  - [BitBucket events](https://github.com/lukepatrick/brigade-bitbucket-gateway): Gateway Support for BitBucket repositories
-  - [GitLab events](https://github.com/lukepatrick/brigade-gitlab-gateway): Gateway Support for GitLab repositories
-  - [Kubernetes events](https://github.com/brigadecore/brigade-k8s-gateway): Gateway that listens to Kubernetes event stream
-  - [Event Grid gateway](https://github.com/radu-matei/brigade-eventgrid-gateway): Gateway for Azure Event Grid events
-  - [Cron Gateway](https://github.com/technosophos/brigade-cron): Schedule events to run at a particular time
-  - [Trello and Generic Webhooks](https://github.com/technosophos/brigade-trello): Experimental gateway for Trello and for generic webhooks
-  - [Draft Pack for Building Custom Gateways](https://github.com/technosophos/draft-brigade): Build your own gateway [in 5 minutes](http://technosophos.com/2018/04/23/building-brigade-gateways-the-easy-way.html)
-  - [Azure DevOps / VSTS gateway](https://github.com/radu-matei/brigade-vsts-gateway): Gateway for Azure DevOps / VSTS events
-
-## Brigade :heart: Developers
+### Brigade :heart: Developers
 
 To get started head to the [developer's guide](https://docs.brigade.sh/topics/developers/)
 
 Brigade is well-tested on Minikube and [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/).
 
-# Contributing
 
-The Brigade project accepts contributions via GitHub pull requests. The [Contributing](CONTRIBUTING.md) document outlines the process to help get your contribution accepted.
-
-
-# Support & Feedback
-
-We have a slack channel! [Kubernetes/#brigade](https://kubernetes.slack.com/messages/C87MF1RFD) Feel free to join for any support questions or feedback, we are happy to help. To report an issue or to request a feature open an issue [here](https://github.com/brigadecore/brigade/issues)
-
-[brigade-project-chart]: https://github.com/brigadecore/charts/tree/master/charts/brigade-project
-
-
-## License
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fbrigadecore%2Fbrigade.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fbrigadecore%2Fbrigade?ref=badge_large)
+If you use our setup, please cite our Fifer work, Jashwant Raj Gunasekaran, Prashanth Thinakaran, Nachiappan C.Nachiappan, Mahmut Taylan Kandemir, and Chita R. Das. 2020.Fifer: Tackling Resource Underutilization in the Serverless Era. In21st International Middleware Conference (Middleware ’20), December7–11, 2020, Delft, Netherlands.ACM, New York, NY, USA.
