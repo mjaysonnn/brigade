@@ -14,38 +14,6 @@ Note: change the docker access repository to your needs.
 
 ## Brigade: Event-based Scripting for Kubernetes
 
-![Build Status](https://badges.deislabs.io/v1/github/build/brigadecore/brigade/badge.svg?branch=master)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2688/badge)](https://bestpractices.coreinfrastructure.org/projects/2688)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fbrigadecore%2Fbrigade.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fbrigadecore%2Fbrigade?ref=badge_shield)
-
-Script simple and complex workflows using JavaScript. Chain together containers,
-running them in parallel or serially. Fire scripts based on times, GitHub events,
-Docker pushes, or any other trigger. Brigade is the tool for creating pipelines
-for Kubernetes.
-
-- JavaScript scripting
-- Project-based management
-- Configurable event hooks
-- Easy construction of pipelines
-- Check out the [docs](https://docs.brigade.sh/) to get started.
-
- <!-- [![asciicast](https://asciinema.org/a/JBsjOpah4nTBvjqDT5dAWvefG.png)](https://asciinema.org/a/JBsjOpah4nTBvjqDT5dAWvefG) -->
-
-### The Brigade Technology Stack
-
-- Brigade :heart: JavaScript: Writing Brigade pipelines is as easy as writing a few lines of JavaScript.
-- Brigade :heart: Kubernetes: Brigade is Kubernetes-native. Your builds are translated into
-  pods, secrets, and services
-- Brigade :heart: Docker: No need for special plugins or elaborate extensions. Brigade uses
-  off-the-shelf Docker images to run your jobs. And Brigade also supports DockerHub
-  webhooks.
-- Brigade :heart: GitHub: Brigade comes with built-in support for GitHub, DockerHub, and
-  other popular web services. And it can be easily extended to support your own
-  services.
-
-The [design introduction](https://docs.brigade.sh/topics/design/) introduces Brigade concepts and
-architecture.
-
 ### Quickstart
 
 Check out the quickstart on the docs [here](https://docs.brigade.sh/intro/quickstart/).
