@@ -23,7 +23,7 @@ import * as byline_1 from "byline";
 // After this point, the pod can be garbage collected (a feature not yet implemented)
 const expiresInMSec = 1000 * 60 * 60 * 24 * 31;
 var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://10.52.3.47:27017/mydb";
+var url = "mongodb://127.0.0.1:27017/mydb";
 const arrivalTime = Date.now()/1000;
 var containerExist = false;
 let jobname = "test";

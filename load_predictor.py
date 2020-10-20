@@ -7,7 +7,8 @@ from pandas import read_csv
 from pandas import datetime
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.externals import joblib
+#import sklearn.externals.joblib as extjoblib
+import joblib
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM

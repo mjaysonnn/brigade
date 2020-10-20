@@ -1,5 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://10.52.3.47:27017/mydb";
+var url = "mongodb://127.0.0.1:27017/mydb";
 var idleContainer = null;
 var idleCreatetime = null;
 var myArgs = process.argv.slice(2);
