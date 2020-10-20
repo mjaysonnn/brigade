@@ -1,14 +1,15 @@
-for entry in $(kubectl get pod | grep worker | grep "Completed" | cut -d" " -f1 ):                                                                
+set -x
+for entry in $(kubectl get pod -n brigade| grep worker | grep "Completed" | cut -d" " -f1 ) 
 do                                                                                                                                                
-                                                                                                                                                  
-schedType=$(kubectl logs $entry | grep "Job arrival" | cut -d" " -f 12 | cut -d- -f2 | tail -n 1)                                                 
+echo $entry                                                                                                                                                  
+schedType=$(kubectl logs $entry -n brigade | grep "Job arrival" | cut -d" " -f 12 | cut -d- -f2 | tail -n 1)                                                 
 echo "$entry,$schedType"                                                                                                                          
-arrivals=$(kubectl logs $entry | grep "Job" | cut -d" " -f 9)                                                                                     
+arrivals=$(kubectl logs $entry -n brigade| grep "Job" | cut -d" " -f 9)                                                                                     
 arrivalTimes=$(echo $arrivals | sed 's/\n/ /g')                                                                                                   
-starttimes=$(kubectl logs $entry | grep "asr" | grep "Pending" | tail -n 1 | cut -d" " -f 5)                                                      
+starttimes=$(kubectl logs $entry -n brigade| grep "asr" | grep "Pending" | tail -n 1 | cut -d" " -f 5)                                                      
 starttimes="${starttimes}$(echo " ")$(kubectl logs $entry | grep "nlp" | grep "Pending" | tail -n 1| cut -d" " -f 5)"                             
 starttimes="${starttimes}$(echo " ")$(kubectl logs $entry | grep "qa" | grep "Pending" | tail -n 1| cut -d" " -f 5)"                              
-finished=$(kubectl logs $entry | grep "Succeeded"| cut -d" " -f 5)                                                                                
+finished=$(kubectl logs $entry -n brigade| grep "Succeeded"| cut -d" " -f 5)                                                                                
 finishtimes=$(echo $finished | sed 's/\n/ /g')                                                                                                    
 #echo "finished $finishedtimes"                                                                                                                   
 if [ "$schedType" = "slackaware" ]                                                                                                                

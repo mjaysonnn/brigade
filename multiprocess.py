@@ -5,8 +5,9 @@ import time
 import sys
 import csv
 import time
+import math
 def worker(num):
-    """thread worker function"""
+    print("""thread worker function""")
     print 'Worker:', num
     #cmd= "pwd"
     cmd="brig run brigadecore/empty-testbed -f %s -n brigade> 10minjob-%s.log"%(sys.argv[2],num)
@@ -20,8 +21,8 @@ if __name__ == '__main__':
     while line:
         arrival_time = float(line.split(',')[0])
         num_tasks = int(line.split(',')[1])
-        print arrival_time, num_tasks
-	num = int(num_tasks/10)
+	num = int(math.ceil(num_tasks/5))
+        print arrival_time, num_tasks, num
         for i in range(num):
             print("request ",i+(num * batch), " submitted at time ",time.time())
             #p = multiprocessing.Process(target=worker, args=(i*(num+1),))
